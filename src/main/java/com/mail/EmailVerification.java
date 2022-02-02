@@ -32,8 +32,8 @@ public class EmailVerification extends HttpServlet {
 	
 	private static final long serialVersionUID = 4652855784469428732L;
 
-	private static final String sendFrom = "ishwar2303@gmail.com";
-	private static final String password = "Baisla1999@";
+	private static final String sendFrom = "";
+	private static final String password = "";
 	private static final String host = "smtp.gmail.com";
 	
 	@SuppressWarnings("unchecked")
