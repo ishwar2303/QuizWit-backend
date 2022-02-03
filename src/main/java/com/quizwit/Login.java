@@ -31,7 +31,6 @@ public class Login extends HttpServlet {
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
 		JSONObject json = new JSONObject();
-		json.put("admin", "");
 		String success = "";
 		String error = "";
 		
