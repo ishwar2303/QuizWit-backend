@@ -50,17 +50,17 @@ public class Admin {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select a.adminId, firstName, lastName, email, contact, institution, dateOfBirth, genderId, path from Admin a INNER JOIN AdminImage ai on a.adminId = ai.adminId WHERE a.adminId = ?";
+		String sql = "select a.adminId, firstName, lastName, email, contact, institution, dateOfBirth, genderId, path from Admin a LEFT JOIN AdminImage ai on a.adminId = ai.adminId WHERE a.adminId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		ResultSet rs = st.executeQuery();
-		rs.next();
-		ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
 		JSONObject json = new JSONObject();
-        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
-            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
-        }
-		
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+		}
 		return json;
 	}
 	
