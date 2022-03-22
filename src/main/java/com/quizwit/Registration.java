@@ -28,18 +28,13 @@ public class Registration extends HttpServlet {
 	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		String user      = req.getParameter("user");
-		String firstName = req.getParameter("firstName");
-		String lastName  = req.getParameter("lastName");
+		String fullName = req.getParameter("fullName");
 		String email     = req.getParameter("email");
 		String contact   = req.getParameter("contact");
-		String genderId  = req.getParameter("gender");
-		String institution = req.getParameter("institution");
-		String dateOfBirth = req.getParameter("dateOfBirth");
 		String password = req.getParameter("password");
 		String confirmPassword = req.getParameter("confirmPassword");
 		String success = "";
 		String error = "";
-		System.out.println(firstName);
 		JSONObject errorLog = new JSONObject();
 		
 		HttpSession session = req.getSession();
@@ -49,7 +44,7 @@ public class Registration extends HttpServlet {
 		Admin admin = new Admin();
 		Student student = new Student();
 		
-		if(firstName != null && email != null && dateOfBirth != null && password != null && confirmPassword != null) {
+		if(fullName != null && email != null && contact != null && password != null && confirmPassword != null) {
 			Boolean control = true;
 			
 			if(user == null) {
@@ -61,9 +56,9 @@ public class Registration extends HttpServlet {
 				errorLog.put("user", "Invalid role");
 			}
 			
-			if(firstName == "") {
+			if(fullName == "") {
 				control = false;
-	 			errorLog.put("firstName", "First Name required");
+	 			errorLog.put("firstName", "Full Name required");
 			}
 			
 			
@@ -75,18 +70,18 @@ public class Registration extends HttpServlet {
 				control = false;
 	 			errorLog.put("email", "Invalid E-mail");
 			}
-			else if(verifiedEmail != null) {
-				System.out.println(verifiedEmailDesc);
-				if(verifiedEmail && !verifiedEmailDesc.equals(email)) {
-					control = false;
-		 			errorLog.put("email", "E-mail changed verify again");
-				}
-				else email = verifiedEmailDesc;
-			}
-			else {
-				control = false;
-	 			errorLog.put("email", "E-mail not verified");
-			}
+//			else if(verifiedEmail != null) {
+//				System.out.println(verifiedEmailDesc);
+//				if(verifiedEmail && !verifiedEmailDesc.equals(email)) {
+//					control = false;
+//		 			errorLog.put("email", "E-mail changed verify again");
+//				}
+//				else email = verifiedEmailDesc;
+//			}
+//			else {
+//				control = false;
+//	 			errorLog.put("email", "E-mail not verified");
+//			}
 
 			try {
 				Boolean result = false;
@@ -113,29 +108,6 @@ public class Registration extends HttpServlet {
 			}
 			
 			
-			if(genderId==null || genderId == "") {
-				control = false;
-	 			errorLog.put("gender", "Gender required");
-			}
-			else if(!Validation.isNumeric(genderId) || !genderId.matches("[123]{1}")) {
-				control = false;
-	 			errorLog.put("gender", "Invalid gender");
-			}
-			if(dateOfBirth == "") {
-				control = false;
-	 			errorLog.put("dateOfBirth", "Date of Brith required");
-			}
-			else {
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
-		        dateFormat.setLenient(false);
-		        try {
-		            dateFormat.parse(dateOfBirth);
-		        } catch (ParseException pe) {
-					control = false;
-		 			errorLog.put("dateOfBirth", "Invalid Date of Birth");
-		        }
-			}
-			
 			if(password == "" ) {
 				control = false;
 	 			errorLog.put("password", "Password required");
@@ -158,8 +130,8 @@ public class Registration extends HttpServlet {
 				Boolean result = false;
 				try {
 					if(user.equals("1"))
-						result = admin.add(firstName, lastName, email, contact, genderId, institution, dateOfBirth, password);
-					else result = student.add(firstName, lastName, email, contact, genderId, institution, dateOfBirth, password);
+						result = admin.add(fullName, email, contact, password);
+					else result = student.add(fullName, email, contact, password);
 					
 				} catch (ClassNotFoundException | SQLException e) {
 					// TODO Auto-generated catch block
@@ -167,7 +139,6 @@ public class Registration extends HttpServlet {
 				}
 
 				if(result) {
-
 					session.removeAttribute("verifiedEmail");
 					session.removeAttribute("verifiedEmailDesc");
 					session.setAttribute("flashSuccess", "Registration Successfull");

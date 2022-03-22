@@ -16,7 +16,7 @@ public class Student {
 	public boolean exists(String email) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "SELECT COUNT(studentId) FROM `student` WHERE email = ?";
+		String sql = "SELECT COUNT(studentId) FROM `Students` WHERE email = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setString(1, email);
 		ResultSet rs = st.executeQuery();
@@ -28,19 +28,15 @@ public class Student {
 		return records > 0 ? true : false;
 	}
 	
-	public boolean add(String firstName, String lastName, String email, String contact, String gender, String institution, String dateOfBirth, String password) throws ClassNotFoundException, SQLException {
+	public boolean add(String fullName, String email, String contact, String password) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "INSERT INTO `student` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO `Students` VALUES (NULL, ?, ?, ?, ?, 1)";
 		PreparedStatement st = con.prepareStatement(sql);
-		st.setString(1, firstName);
-		st.setString(2, lastName);
-		st.setString(3, email);
-		st.setString(4, contact);
-		st.setInt(5, Integer.parseInt(gender));
-		st.setString(6, institution);
-		st.setString(7, dateOfBirth);
-		st.setString(8, password);
+		st.setString(1, fullName);
+		st.setString(2, email);
+		st.setString(3, contact);
+		st.setString(4, password);
 		Integer count = st.executeUpdate();
 		st.close();
 		con.close();
@@ -51,7 +47,7 @@ public class Student {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select s.studentId, firstName, path from Student s INNER JOIN StudentImage si on s.studentId = si.studentId WHERE s.studentId = ?";
+		String sql = "select fullName, email, contact from `Students` where studentId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, studentId);
 		
@@ -70,7 +66,7 @@ public class Student {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select a.studentId from Student s INNER JOIN StudentImage si on s.studentId = si.studentId WHERE email = ? AND password = ?";
+		String sql = "select studentId from `Students` WHERE email = ? AND password = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setString(1, email);
 		st.setString(2, password);

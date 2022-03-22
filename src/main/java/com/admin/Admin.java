@@ -15,7 +15,7 @@ public class Admin {
 	public boolean exists(String email) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "SELECT COUNT(adminId) FROM `admin` WHERE email = ?";
+		String sql = "SELECT COUNT(administratorId) FROM `Administrators` WHERE email = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setString(1, email);
 		ResultSet rs = st.executeQuery();
@@ -27,19 +27,15 @@ public class Admin {
 		return records > 0 ? true : false;
 	}
 	
-	public boolean add(String firstName, String lastName, String email, String contact, String gender, String institution, String dateOfBirth, String password) throws ClassNotFoundException, SQLException {
+	public boolean add(String fullName, String email, String contact, String password) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "INSERT INTO `admin` VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO `Administrators` VALUES (NULL, ?, ?, ?, ?, 1)";
 		PreparedStatement st = con.prepareStatement(sql);
-		st.setString(1, firstName);
-		st.setString(2, lastName);
-		st.setString(3, email);
-		st.setString(4, contact);
-		st.setInt(5, Integer.parseInt(gender));
-		st.setString(6, institution);
-		st.setString(7, dateOfBirth);
-		st.setString(8, password);
+		st.setString(1, fullName);
+		st.setString(2, email);
+		st.setString(3, contact);
+		st.setString(4, password);
 		Integer count = st.executeUpdate();
 		st.close();
 		con.close();
@@ -50,7 +46,7 @@ public class Admin {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select a.adminId, firstName, lastName, email, contact, institution, dateOfBirth, genderId, path from Admin a LEFT JOIN AdminImage ai on a.adminId = ai.adminId WHERE a.adminId = ?";
+		String sql = "select administratorId, fullName, email, contact from `Administrators` where administratorId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		ResultSet rs = st.executeQuery();
@@ -64,11 +60,11 @@ public class Admin {
 		return json;
 	}
 	
-	public Integer login(String email, String password) throws ClassNotFoundException, SQLException {
+	public static Integer login(String email, String password) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select adminId from Admin WHERE email = ? AND password = ?";
+		String sql = "select administratorId from `Administrators` WHERE email = ? AND password = ? AND isActive = 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setString(1, email);
 		st.setString(2, password);

@@ -24,7 +24,6 @@ import java.net.URL;
 public class Jdoodle extends HttpServlet {
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		String clientId = ""; //Replace with your client ID
         String clientSecret = ""; //Replace with your client Secret
         String script = request.getParameter("script");
