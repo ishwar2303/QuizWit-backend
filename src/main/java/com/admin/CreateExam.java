@@ -31,6 +31,10 @@ public class CreateExam extends HttpServlet {
 		Integer userId  = Integer.parseInt((String) session.getAttribute("userId"));
 		String success = "", error = "";
 		JSONObject errorLog = new JSONObject();
+		
+		if(adminId == null)
+			return;
+		
 		try {
 			Boolean access = Roles.authorized("CreateUser", userId);
 			if(userId == 0 || access) {
@@ -154,6 +158,7 @@ public class CreateExam extends HttpServlet {
 							if(timerTypeValue == 2)
 							{
 								sectionTimer = 1;
+								timeDuration = "0";
 							}
 							if(!Validation.onlyDigits(timeDuration)) {
 								errorLog.put("timerDuration", "Invalid time duration");
