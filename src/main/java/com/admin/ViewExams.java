@@ -69,11 +69,13 @@ public class ViewExams extends HttpServlet {
 				Integer examCount = ViewExams.examsCount(adminId);
 				Integer totalPages = (int) Math.ceil(examCount/(double)limit);
 				Integer offset = (page - 1)*limit; // rows to skip
-				
+				if(page > totalPages || page < 1)
+					page = 1;
 				examDetails = ViewExams.fetchAllExams(adminId, limit, offset);
 				success = "Details fetched successfully";
 				json.put("examDetails", examDetails);
 				json.put("totalPages", totalPages);
+				json.put("currentPage", page);
 			} catch(Exception e) {
 				e.printStackTrace();
 				error = "Something went wrong while fetching exam details from database";
@@ -91,11 +93,12 @@ public class ViewExams extends HttpServlet {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
 		
-		String sql = "select * from `Exams` where administratorId = ? order by examId desc LIMIT ? OFFSET ?";
+		String sql = "select * from `Exams` where administratorId = ? AND isDeleted = ? order by examId desc LIMIT ? OFFSET ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
-		st.setInt(2, limit); // rows to fetch
-		st.setInt(3, offset); // rows to skip
+		st.setInt(2, 0);
+		st.setInt(3, limit); // rows to fetch
+		st.setInt(4, offset); // rows to skip
 		ResultSet rs = st.executeQuery();
 		ArrayList<JSONObject> details = new ArrayList<JSONObject>();
 		while(rs.next()) {

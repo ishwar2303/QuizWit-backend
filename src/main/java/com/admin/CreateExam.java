@@ -57,6 +57,8 @@ public class CreateExam extends HttpServlet {
 				Integer windowTimeValue = 0;
 				Integer examTimer = 0;
 				Integer sectionTimer = 0;
+				Integer sectionNavigationValue = 1;
+				Integer visibilityValue = 0;
 				
 				Boolean control = true;
 				if(title != null && description != null && startTime != null && windowTime != null && numberOfAttempts != null && instruction != null) {
@@ -96,6 +98,9 @@ public class CreateExam extends HttpServlet {
 						errorLog.put("visibility", "Invalid visibility");
 						control = false;
 					}
+					else {
+						visibilityValue = Integer.parseInt(visibility);
+					}
 					
 					if(sectionNavigation == null) {
 						errorLog.put("sectionNavigation", "Select navigation setting");
@@ -105,8 +110,9 @@ public class CreateExam extends HttpServlet {
 						errorLog.put("sectionNavigation", "Invalid navigation type");
 						control = false;
 					}
-					
-					
+					else {
+						sectionNavigationValue  = Integer.parseInt(sectionNavigation);
+					}
 					
 					if(!Validation.onlyDigits(windowTime)) {
 						errorLog.put("windowTime", "Invalid window time");
@@ -160,7 +166,11 @@ public class CreateExam extends HttpServlet {
 								sectionTimer = 1;
 								timeDuration = "0";
 							}
-							if(!Validation.onlyDigits(timeDuration)) {
+							if(timeDuration == null) {
+								errorLog.put("timerDuration", "Select time duration");
+								control = false;
+							}
+							else if(!Validation.onlyDigits(timeDuration)) {
 								errorLog.put("timerDuration", "Invalid time duration");
 								control = false;
 							}
@@ -176,12 +186,12 @@ public class CreateExam extends HttpServlet {
 					
 					
 					if(control) {
-						success = "Exam created successfully";
 						System.out.println(startTime);
 						System.out.println(endTime);
+						System.out.println("sectionNavigation: " + sectionNavigation);
 						Boolean result = false;
 						try {
-							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, userId, timerTypeValue, startTime, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
+							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTime, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";
@@ -224,7 +234,7 @@ public class CreateExam extends HttpServlet {
 		st.setString(4, difficultyLevel);
 		st.setString(5, instructions);
 		st.setInt(6, visibility);
-		st.setInt(7, 0); // default hidden 
+		st.setInt(7, 0); // default hidden publish result
 		st.setInt(8, examTimer);
 		st.setInt(9, timeDurationValue);
 		st.setInt(10, sectionTimer);
