@@ -84,7 +84,7 @@ public class CreateExam extends HttpServlet {
 						if(difficultyLevel.equals("1")) 
 							difficultyLevel = "Beginner";
 						if(difficultyLevel.equals("2")) 
-							difficultyLevel = "Moderate";
+							difficultyLevel = "Intermediate";
 						if(difficultyLevel.equals("3")) 
 							difficultyLevel = "Advance";
 						
