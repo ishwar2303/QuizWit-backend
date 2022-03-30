@@ -226,7 +226,7 @@ public class CreateExam extends HttpServlet {
 
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "Insert into exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
+		String sql = "Insert into Exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		st.setString(2, title);
