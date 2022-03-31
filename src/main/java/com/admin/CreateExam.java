@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.servlet.ServletException;
@@ -250,6 +251,22 @@ public class CreateExam extends HttpServlet {
 		con.close();
 		return count > 0 ? true : false;
 		
+	}
+	
+	public static boolean examExists(Integer adminId, Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "SELECT COUNT(examId) FROM `Exams` WHERE administratorId = ? AND examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		st.setInt(2, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer records = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return records > 0 ? true : false;
 	}
 
 }

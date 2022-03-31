@@ -63,7 +63,7 @@ public class AddSection extends HttpServlet {
 						examId = Integer.parseInt(examIdString);
 						try {
 							boolean correctExamId = false;
-							correctExamId = AddSection.examExists(adminId, examId);
+							correctExamId = CreateExam.examExists(adminId, examId);
 							if(!correctExamId) {
 								errorLog.put("examId", "Exam doesn't belongs to this account");
 								control = false;
@@ -169,21 +169,6 @@ public class AddSection extends HttpServlet {
 		out.println(json.toString());
 	}
 	
-	public static boolean examExists(Integer adminId, Integer examId) throws ClassNotFoundException, SQLException {
-		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
-		Connection con = adc.connection();
-		String sql = "SELECT COUNT(examId) FROM `Exams` WHERE administratorId = ? AND examId = ?";
-		PreparedStatement st = con.prepareStatement(sql);
-		st.setInt(1, adminId);
-		st.setInt(2, examId);
-		ResultSet rs = st.executeQuery();
-		rs.next();
-		Integer records = rs.getInt(1);
-		rs.close();
-		st.close();
-		con.close();
-		return records > 0 ? true : false;
-	}
 	
 	public static boolean add(Integer examId, String title, String description, Integer questionNavigation, Integer sectionTimer , Integer questionTimer, Integer timeDurationValue) throws ClassNotFoundException, SQLException {
 
