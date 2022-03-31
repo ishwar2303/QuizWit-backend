@@ -29,6 +29,7 @@ public class CreateExam extends HttpServlet {
 		Headers.setRequiredHeaders(response, Origin.getAdmin());
 		Integer adminId = Integer.parseInt((String) session.getAttribute("administratorId"));
 		Integer userId  = Integer.parseInt((String) session.getAttribute("userId"));
+		
 		String success = "", error = "";
 		JSONObject errorLog = new JSONObject();
 		
@@ -36,7 +37,7 @@ public class CreateExam extends HttpServlet {
 			return;
 		
 		try {
-			Boolean access = Roles.authorized("CreateUser", userId);
+			Boolean access = Roles.authorized("CreateExam", userId);
 			if(userId == 0 || access) {
 				String title = request.getParameter("title");
 				String description = request.getParameter("description");
