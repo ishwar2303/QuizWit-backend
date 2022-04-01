@@ -22,10 +22,10 @@ import com.database.AdminDatabaseConnectivity;
 import com.util.Validation;
 
 /**
- * Servlet implementation class AddSection
+ * Servlet implementation class UpdateSectionDetails
  */
-@WebServlet("/AddSection")
-public class AddSection extends HttpServlet {
+@WebServlet("/UpdateSectionDetails")
+public class UpdateSectionDetails extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -42,14 +42,15 @@ public class AddSection extends HttpServlet {
 		try {
 			Boolean access = Roles.authorized("AddSection", userId);
 			if(userId == 0 || access) {
-				String examIdString = request.getParameter("examId");
+				String sectionIdString = request.getParameter("sectionId");
 				String title = request.getParameter("title");
 				String description = request.getParameter("description");
 				String questionNavigation = request.getParameter("questionNavigation"); // radio
 				String timerType = request.getParameter("timerType"); // radio
 				String timeDuration = request.getParameter("timeDuration"); // radio
 				String shuffleQuestionsString = request.getParameter("shuffleQuestions");
-				
+				System.out.println(shuffleQuestionsString+" "+sectionIdString);
+				Integer sectionId = 0;
 				Integer examId = 0;
 				Integer sectionTimer = 0;
 				Integer questionTimer = 0;
@@ -60,14 +61,15 @@ public class AddSection extends HttpServlet {
 				Integer shuffleQuestions = 0;
 				
 				Boolean control = true;
-				if(examId != null && title != null && description != null) {
-					if(Validation.onlyDigits(examIdString)) {
-						examId = Integer.parseInt(examIdString);
+				if(sectionIdString != null && title != null && description != null) {
+					if(Validation.onlyDigits(sectionIdString)) {
+						sectionId = Integer.parseInt(sectionIdString);
 						try {
-							boolean correctExamId = false;
-							correctExamId = CreateExam.examExists(adminId, examId);
-							if(!correctExamId) {
-								errorLog.put("examId", "Exam doesn't belongs to this account");
+							boolean correctSectionId = false;
+							examId =  AddSection.getExamId(sectionId);
+							correctSectionId = CreateExam.examExists(adminId, examId);
+							if(!correctSectionId) {
+								errorLog.put("sectionId", "Section doesn't belongs to this account");
 								control = false;
 							}
 							
@@ -75,10 +77,6 @@ public class AddSection extends HttpServlet {
 							e.printStackTrace();
 							error = "Something went wrong in database";
 						}
-					}
-					else {
-						errorLog.put("examId", "Please select proper exam");
-						control = false;
 					}
 					
 					if(title.length() == 0) {
@@ -140,7 +138,7 @@ public class AddSection extends HttpServlet {
 					if(shuffleQuestionsString != null)
 					{
 						if(!shuffleQuestionsString.matches("[01]")) {
-							errorLog.put("timerType", "Invalid shuffleQuestions type");
+							errorLog.put("shuffleQuestions", "Invalid shuffleQuestions type");
 							control = false;
 						}
 						else {
@@ -148,7 +146,7 @@ public class AddSection extends HttpServlet {
 						}
 					}
 					else {
-						errorLog.put("timerType", "Select ShuffleQuestion type");
+						errorLog.put("shuffleQuestions", "Select ShuffleQuestion type");
 						control = false;
 					}
 					
@@ -157,13 +155,13 @@ public class AddSection extends HttpServlet {
 					if(control) {
 						Boolean result = false;
 						try {
-							result =  AddSection.add(examId, title, description, questionNavigationValue, sectionTimer, questionTimer, timeDurationValue, shuffleQuestions);
+							result =  UpdateSectionDetails.update(sectionId, examId, title, description, questionNavigationValue, sectionTimer, questionTimer, timeDurationValue, shuffleQuestions);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";
 						}
 						if(result) {
-							success = "Section added successfully";
+							success = "Section updated successfully";
 						}
 					}
 				}
@@ -188,20 +186,20 @@ public class AddSection extends HttpServlet {
 	}
 	
 	
-	public static boolean add(Integer examId, String title, String description, Integer questionNavigation, Integer sectionTimer , Integer questionTimer, Integer timeDurationValue, Integer shuffleQuestions) throws ClassNotFoundException, SQLException {
+	public static boolean update(Integer sectionId, Integer examId, String title, String description, Integer questionNavigation, Integer setSectionTimer , Integer setQuestionTimer, Integer timeDurationValue, Integer shuffleQuestions) throws ClassNotFoundException, SQLException {
 
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "Insert into Sections values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
+		String sql = "Update Sections set title = ?, description = ?, questionNavigation = ?, setSectionTimer = ?, timeDuration = ?, setQuestionTimer = ?, shuffleQuestions = ? where sectionId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
-		st.setInt(1, examId);
-		st.setString(2, title);
-		st.setString(3, description);
-		st.setInt(4, sectionTimer);
+		st.setString(1, title);
+		st.setString(2, description);
+		st.setInt(3, questionNavigation);
+		st.setInt(4, setSectionTimer);
 		st.setInt(5, timeDurationValue);
-		st.setInt(6, questionTimer);
-		st.setInt(7, questionNavigation);
-		st.setInt(8, shuffleQuestions);
+		st.setInt(6, setQuestionTimer);
+		st.setInt(7, shuffleQuestions);
+		st.setInt(8, sectionId);
 		Integer count = st.executeUpdate();
 		st.close();
 		con.close();
@@ -223,5 +221,4 @@ public class AddSection extends HttpServlet {
 		con.close();
 		return examId;
 	}
-
 }
