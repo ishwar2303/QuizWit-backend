@@ -189,5 +189,20 @@ public class AddSection extends HttpServlet {
 		return count > 0 ? true : false;
 		
 	}
+	
+	public static Integer getExamId(Integer sectionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "SELECT examId FROM `Sections` WHERE sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer examId = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return examId;
+	}
 
 }

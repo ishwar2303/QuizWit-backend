@@ -47,9 +47,18 @@ public class ViewSections extends HttpServlet {
 		if(sectionIdString != null && Validation.onlyDigits(sectionIdString)) {
 			try {
 				Integer sectionId = Integer.parseInt(sectionIdString);
-				section = ViewSections.fetchSection(sectionId);
-				success = "Details fetched successfully";
-				json.put("sectionDetails", section);
+				
+				Integer sectionExamId = AddSection.getExamId(sectionId);
+				boolean correctExamId = false;
+				correctExamId = CreateExam.examExists(adminId, sectionExamId);
+				if(!correctExamId) {
+					error = "Exam doesn't belongs to this account";
+				}
+				else {
+					section = ViewSections.fetchSection(sectionId);
+					success = "Details fetched successfully";
+					json.put("sectionDetails", section);
+				}
 			} catch(Exception e) {
 				e.printStackTrace();
 				error = "Something went wrong while fetching section details from database";
