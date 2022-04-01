@@ -105,6 +105,11 @@ public class ViewSections extends HttpServlet {
 			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
 	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
 	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	            if(j == 1) {// sectionId
+	            	Integer sectionId = Integer.parseInt(rs.getString(j));
+	            	json.put("questions", ViewSections.numberOfQuestionsInSection(sectionId));
+	            }
+	            
 	        }
 	        details.add(json);
 		}
@@ -128,7 +133,21 @@ public class ViewSections extends HttpServlet {
 		}
 		return json;
 	}
-	
+
+	public static Integer numberOfQuestionsInSection(Integer sectionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "SELECT COUNT(questionId) FROM `Questions` WHERE sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer questionsCount = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return questionsCount;
+	}
 
 
 }
