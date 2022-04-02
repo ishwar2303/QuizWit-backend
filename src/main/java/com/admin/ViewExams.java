@@ -67,7 +67,9 @@ public class ViewExams extends HttpServlet {
 			}
 			try {
 				Integer examCount = ViewExams.examsCount(adminId);
+				System.out.println("Exam Count: " + examCount);
 				Integer totalPages = (int) Math.ceil(examCount/(double)limit);
+				System.out.println(examCount/(double)limit);
 				Integer offset = (page - 1)*limit; // rows to skip
 				if(page > totalPages || page < 1)
 					page = 1;
@@ -135,7 +137,7 @@ public class ViewExams extends HttpServlet {
 	public static Integer examsCount(Integer adminId) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "SELECT COUNT(examId) FROM `Exams` WHERE administratorId = ?";
+		String sql = "SELECT COUNT(examId) FROM `Exams` WHERE administratorId = ? AND isDeleted = 0";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		ResultSet rs = st.executeQuery();
