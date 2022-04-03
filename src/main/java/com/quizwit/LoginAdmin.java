@@ -114,7 +114,7 @@ public class LoginAdmin extends HttpServlet {
 							LoginAdmin.setManagementUserRoles(request, id);
 							details = ManagementUser.getDetails(id);
 							details.put("fullName", details.get("username"));
-							details.put("userType", "ManagementUser");
+							details.put("userType", "Management User");
 							session.setAttribute("userId", details.get("userId"));
 							session.setAttribute("ManagementUser", true);
 						}catch(Exception e) {
