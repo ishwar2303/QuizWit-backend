@@ -39,10 +39,8 @@ public class TrueFalseQuestion extends HttpServlet {
 		
 		
 		try {
-			System.out.println("try");
 			Boolean access = Roles.authorized("AddQuestion", userId);
 			if(userId == 0 || access) {
-				System.out.println("if");
 				String sectionIdString = request.getParameter("sectionId");
 				String categoryIdString = request.getParameter("categoryId");
 				String questionString = request.getParameter("question");
