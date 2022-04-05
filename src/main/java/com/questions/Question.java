@@ -4,15 +4,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import com.database.AdminDatabaseConnectivity;
 
 public class Question {
-	public static boolean add(Integer sectionId, Integer categoryId, String question, Double score, Double negative, String explanation, Integer timeDuration) throws SQLException, ClassNotFoundException {
+	public static Integer add(Integer sectionId, Integer categoryId, String question, Double score, Double negative, String explanation, Integer timeDuration) throws SQLException, ClassNotFoundException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
 		String sql = "insert into Questions values (null, ?, ?, ?, ?, ?, ?, ?)";
-		PreparedStatement st = con.prepareStatement(sql);
+		PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		st.setInt(1, sectionId);
 		st.setInt(2, categoryId);
 		st.setString(3, question);
@@ -21,8 +22,15 @@ public class Question {
 		st.setString(6, explanation);
 		st.setInt(7, timeDuration);
 		Integer count = st.executeUpdate();
+		 
+		ResultSet rs = st.getGeneratedKeys();
+		int generatedKey = 0;
+		if (rs.next()) {
+		    generatedKey = rs.getInt(1);
+		}
 		st.close();
-		return count > 0 ? true : false;
+		con.close();
+		return generatedKey;
 	}
 	
 	public static boolean update(Integer questionId, String question, Double score, Double negative, String explanation, Integer timeDuration) throws SQLException, ClassNotFoundException {
@@ -38,6 +46,7 @@ public class Question {
 		st.setInt(6, questionId);
 		Integer count = st.executeUpdate();
 		st.close();
+		con.close();
 		return count > 0 ? true : false;
 	}
 	
