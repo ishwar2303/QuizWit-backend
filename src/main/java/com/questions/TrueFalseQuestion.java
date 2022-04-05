@@ -90,7 +90,7 @@ public class TrueFalseQuestion extends HttpServlet {
 						control = false;
 					}
 					questionString = questionString.trim();
-					if(questionString.length() == 0) {
+					if(questionString.equals("")) {
 						errorLog.put("question", "Question required");
 						control = false;
 					}
