@@ -2,6 +2,8 @@ package com.questions;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,16 +16,16 @@ import org.json.simple.JSONObject;
 
 import com.admin.AddSection;
 import com.admin.Roles;
-import com.answers.TrueFalseAnswer;
+import com.answers.MultipleChoiceAnswer;
 import com.config.Headers;
 import com.config.Origin;
 import com.util.Validation;
 
 /**
- * Servlet implementation class TrueFalseQuestion
+ * Servlet implementation class MultipleChoiceQuestionMultipleCorrect
  */
-@WebServlet("/TrueFalseQuestion")
-public class TrueFalseQuestion extends HttpServlet {
+@WebServlet("/MultipleChoiceQuestionMultipleCorrect")
+public class MultipleChoiceQuestionMultipleCorrect extends HttpServlet {
 	private static final long serialVersionUID = 1L;
    
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -33,7 +35,7 @@ public class TrueFalseQuestion extends HttpServlet {
 		Integer userId  = Integer.parseInt((String) session.getAttribute("userId"));
 		String success = "", error = "";
 		JSONObject errorLog = new JSONObject();
-		
+		HashMap<Integer, Boolean> mcqOptionAnswerSelected = new HashMap<Integer, Boolean>();
 		if(adminId == null)
 			return;
 		
@@ -44,7 +46,8 @@ public class TrueFalseQuestion extends HttpServlet {
 				String sectionIdString = request.getParameter("sectionId");
 				String categoryIdString = request.getParameter("categoryId");
 				String questionString = request.getParameter("question");
-				String answerString = request.getParameter("trueFalseAnswer");
+				String[] answerString = request.getParameterValues("mcqOption[]");
+				String mcqOptionAnswerString = request.getParameter("mcqOptionAnswer");
 				String scoreString = request.getParameter("score");
 				String negativeMarkingString = request.getParameter("negativeMarking");
 				String explanationString = request.getParameter("explanation");
@@ -55,18 +58,9 @@ public class TrueFalseQuestion extends HttpServlet {
 				Double score = 0.0;
 				Double negativeMarking = 0.0;
 				Integer timeDuration = 0;
-				Integer answer = 0;
-				System.out.println(sectionIdString);
-				System.out.println(questionString);
-				System.out.println(answerString);
-				System.out.println(scoreString);
-				System.out.println(negativeMarkingString);
-				System.out.println(explanationString);
-				System.out.println(timeDurationString);
-				System.out.println(categoryIdString);
 				
 				Boolean control = true;
-				if(sectionIdString != null && categoryIdString != null && questionString != null && scoreString != null && negativeMarkingString != null && timeDurationString != null) {
+				if(sectionIdString != null && categoryIdString != null && questionString != null && answerString != null && mcqOptionAnswerString != null && scoreString != null && negativeMarkingString != null && timeDurationString != null) {
 					if(Validation.onlyDigits(sectionIdString)) {
 						sectionId = Integer.parseInt(sectionIdString);
 						Integer adminIdTemp = AddSection.authorized(sectionId);
@@ -82,7 +76,7 @@ public class TrueFalseQuestion extends HttpServlet {
 					
 					if(Validation.onlyDigits(categoryIdString)) {
 						categoryId = Integer.parseInt(categoryIdString);
-						if(categoryId != 1) {
+						if(categoryId != 2) {
 							errorLog.put("categoryId", "Select proper question category");
 							control = false;
 						}
@@ -97,22 +91,59 @@ public class TrueFalseQuestion extends HttpServlet {
 						control = false;
 					}
 					
-					if(answerString != null) {
-						if(answerString.length() == 0) {
-							errorLog.put("answer", "Answer required");
-							control = false;
+					if(answerString.length >= 1) {
+						ArrayList<String> optionsError = new ArrayList<String>();
+						for(int i=0; i<answerString.length; i++) {
+							mcqOptionAnswerSelected.put(i+1, false);
+							answerString[i] = answerString[i].trim();
+							String msg = "";
+							if(answerString[i].equals("")) {
+								msg = "Option cannot be empty";
+								control = false;
+							}
+							optionsError.add(msg);
 						}
-						else if(answerString.matches("[01]")) {
-							answer = Integer.parseInt(answerString);	
-						}
-						else {
-							errorLog.put("answer", "Invalid answer");
-							control = false;
-						}
+						errorLog.put("optionsError", optionsError);
+					}
+					if(answerString.length < 2) {
+						errorLog.put("mcqOption", "Atleast 2 mcq options are required");
+						control = false;
+					}
+					
+					if(mcqOptionAnswerString.equals("")) {
+						errorLog.put("mcqOptionAnswers", "Select correct answers");
+						control = false;
 					}
 					else {
-						errorLog.put("answer", "Select answer");
-						control = false;
+						String[] answers = mcqOptionAnswerString.split(",");
+						if(answers.length == 0) {
+							errorLog.put("mcqOptionAnswers", "Select correct answers");
+							control = false;
+						}
+						else {
+							Boolean answerSelected = false;
+							for(int i=0; i<answers.length; i++) {
+								try {
+									Integer serial = Integer.parseInt(answers[i]);
+									System.out.println(serial + " serial");
+									if(serial >= 1 && serial <= answerString.length) {
+										mcqOptionAnswerSelected.put(serial, true);
+										answerSelected = true;
+									}
+									else {
+										errorLog.put("mcqOptionAnswers", "Invalid answer serial no");
+										control = false;
+									}
+								} catch(Exception e) {
+									errorLog.put("mcqOptionAnswers", "Invalid answer serial no");
+									control = false;
+								}
+							}
+							if(!answerSelected) {
+								errorLog.put("mcqOptionAnswers", "Select correct options");
+								control = false;
+							}
+						}
 					}
 					
 					if(Validation.onlyDigits(scoreString)) {
@@ -130,12 +161,12 @@ public class TrueFalseQuestion extends HttpServlet {
 					if(Validation.onlyDigits(negativeMarkingString)) {
 						negativeMarking = Double.parseDouble(negativeMarkingString);
 						if(negativeMarking < 0) {
-							errorLog.put("negativemarking", "Enter positive value");
+							errorLog.put("negativeMarking", "Enter positive value");
 							control = false;
 						}
 					}
 					else {
-						errorLog.put("negativemarking", "Invalid negative marking");
+						errorLog.put("negativeMarking", "Invalid negative marking");
 						control = false;
 					}
 					
@@ -159,11 +190,26 @@ public class TrueFalseQuestion extends HttpServlet {
 					else {
 						timeDuration = 0;
 					}
-					
+					System.out.println("oops");
 					if(control) {
+						System.out.println("Everything is fine");
 						Integer questionId = Question.add(sectionId, categoryId, questionString, score, negativeMarking, explanationString, timeDuration);
 						if(questionId > 0) {
-							Boolean result = TrueFalseAnswer.add(questionId, answer);
+							// insert mcq options
+							Boolean result = true;
+							for(int i=0; i<answerString.length; i++) {
+								Integer optionId = MultipleChoiceQuestionOption.add(questionId, answerString[i]);
+								if(optionId == 0) { // option not inserted
+									result = false;
+									break;
+								}
+								if(optionId > 0 && mcqOptionAnswerSelected.get(i+1)) { // insert if this opiton is correct answer
+									if(!MultipleChoiceAnswer.add(questionId, optionId)) {
+										result = false;
+										break;
+									}
+								}
+							}
 							if(result) {
 								success = "Question added successfully";
 							}
