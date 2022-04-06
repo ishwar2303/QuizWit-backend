@@ -82,7 +82,7 @@ public class TrueFalseQuestion extends HttpServlet {
 					
 					if(Validation.onlyDigits(categoryIdString)) {
 						categoryId = Integer.parseInt(categoryIdString);
-						if(categoryId != 1) {
+						if(categoryId != 3) {
 							errorLog.put("categoryId", "Select proper question category");
 							control = false;
 						}
