@@ -5,8 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 import com.database.AdminDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class MultipleChoiceQuestionOption {
 	public static Integer add(Integer questionId, String option) throws SQLException, ClassNotFoundException {
@@ -67,6 +71,29 @@ public class MultipleChoiceQuestionOption {
 		st.close();
 		con.close();
 		return adminId;
+	}
+
+	public static ArrayList<JSONObject> fetch(Integer questionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select * from `McqOptions` where questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		ResultSet rs = st.executeQuery();
+		ArrayList<JSONObject> options = new ArrayList<JSONObject>();
+		
+		while(rs.next()) {
+			JSONObject option = new JSONObject();
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            option.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+	        options.add(option);
+		}
+		
+	
+		return options;
 	}
 	
 }

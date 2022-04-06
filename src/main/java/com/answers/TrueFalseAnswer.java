@@ -2,9 +2,13 @@ package com.answers;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.json.simple.JSONObject;
+
 import com.database.AdminDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class TrueFalseAnswer {
 	public static boolean add(Integer questionId, Integer answer) throws SQLException, ClassNotFoundException {
@@ -31,4 +35,24 @@ public class TrueFalseAnswer {
 		return count > 0 ? true : false;
 	}
 
+
+	public static JSONObject fetch(Integer questionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select * from `TrueFalseAnswers` where questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		ResultSet rs = st.executeQuery();
+		JSONObject json = new JSONObject();
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+		}
+		return json;
+	}
+	
+	
 }
