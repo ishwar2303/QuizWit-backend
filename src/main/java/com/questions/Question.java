@@ -151,5 +151,19 @@ public class Question {
 		return records;
 	}
 	
+	public static Integer categoryId(Integer questionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "SELECT categoryId FROM `Questions` WHERE questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer categoryId = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return categoryId;
+	}
 	
 }
