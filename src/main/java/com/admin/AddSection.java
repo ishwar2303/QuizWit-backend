@@ -110,11 +110,13 @@ public class AddSection extends HttpServlet {
 							control = false;
 						}
 						else {
+							Boolean setSectionTimer = Exam.setSectionTimer(examId);
 							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1) {
+							if(timerTypeValue == 1 && setSectionTimer) {
 								sectionTimer = 1;
 							}
-							if(timerTypeValue == 2)
+							else timeDuration = "0";
+							if(timerTypeValue == 2 && !setSectionTimer)
 							{
 								questionTimer = 1;
 								timeDuration = "0";
@@ -140,7 +142,7 @@ public class AddSection extends HttpServlet {
 					if(shuffleQuestionsString != null)
 					{
 						if(!shuffleQuestionsString.matches("[01]")) {
-							errorLog.put("timerType", "Invalid shuffleQuestions type");
+							errorLog.put("shuffleQuestion", "Invalid shuffleQuestions type");
 							control = false;
 						}
 						else {
@@ -148,7 +150,7 @@ public class AddSection extends HttpServlet {
 						}
 					}
 					else {
-						errorLog.put("timerType", "Select ShuffleQuestion type");
+						errorLog.put("shuffleQuestion", "Select ShuffleQuestion type");
 						control = false;
 					}
 					

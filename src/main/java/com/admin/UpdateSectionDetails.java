@@ -108,11 +108,18 @@ public class UpdateSectionDetails extends HttpServlet {
 							control = false;
 						}
 						else {
+							Boolean setSectionTimer = Exam.setSectionTimer(examId);
 							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1) {
+							System.out.println("setSectionTimer: " + setSectionTimer);
+							System.out.println("timerType: " + timerType);
+							if(timerTypeValue == 1 && setSectionTimer) {
 								sectionTimer = 1;
 							}
-							if(timerTypeValue == 2)
+							else {
+								System.out.println("in else");
+								timeDuration = "0";
+							}
+							if(timerTypeValue == 2 && !setSectionTimer)
 							{
 								questionTimer = 1;
 								timeDuration = "0";
@@ -128,6 +135,7 @@ public class UpdateSectionDetails extends HttpServlet {
 							else {
 								timeDurationValue = Integer.parseInt(timeDuration);
 							}
+							System.out.println("Duration: " + timeDuration);
 						}
 					}
 					else {

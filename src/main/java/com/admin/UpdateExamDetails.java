@@ -190,8 +190,13 @@ public class UpdateExamDetails extends HttpServlet {
 								errorLog.put("timerDuration", "Invalid time duration");
 								control = false;
 							}
-							else {
+							else if(!timeDuration.equals("")) {
 								timeDurationValue = Integer.parseInt(timeDuration);
+								if(timeDurationValue == 0)
+									examTimer = 0;
+							}
+							else {
+								examTimer = 0;
 							}
 						}
 					}
@@ -202,11 +207,11 @@ public class UpdateExamDetails extends HttpServlet {
 					
 					
 					if(control) {
-						System.out.println(startTime);
-						System.out.println(endTime);
-						System.out.println("sectionNavigation: " + sectionNavigation);
 						Boolean result = false;
 						try {
+							if(examTimer == 1) {
+								Exam.offSectionTimer(examId);
+							}
 							result =  UpdateExamDetails.update(examId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTime, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
 						} catch(Exception e) {
 							e.printStackTrace();
@@ -216,6 +221,7 @@ public class UpdateExamDetails extends HttpServlet {
 							success = "Exam details updated successfully";
 						}
 					}
+					else error = "Please fill required fields appropriately";
 				}
 				else error = "Please fill required fields appropriately";
 				
