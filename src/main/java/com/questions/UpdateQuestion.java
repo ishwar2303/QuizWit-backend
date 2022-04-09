@@ -2,6 +2,8 @@ package com.questions;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.admin.Roles;
+import com.answers.MultipleChoiceAnswer;
 import com.answers.TrueFalseAnswer;
 import com.config.Headers;
 import com.config.Origin;
@@ -24,6 +27,7 @@ import com.util.Validation;
 @WebServlet("/UpdateQuestion")
 public class UpdateQuestion extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	
 	
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
@@ -61,7 +65,11 @@ public class UpdateQuestion extends HttpServlet {
 					Integer timeDuration = 0;
 					
 					Integer trueFalseAnswer = 0;
-					
+
+					String trueFalseAnswerString = request.getParameter("trueFalseAnswer");
+					String[] answerString = request.getParameterValues("mcqOption[]");
+					String mcqOptionAnswerString = request.getParameter("mcqOptionAnswer");
+					HashMap<Integer, Boolean> mcqOptionAnswerSelected = new HashMap<Integer, Boolean>();
 
 					if(categoryIdString.matches("[123]")) {
 						
@@ -112,25 +120,128 @@ public class UpdateQuestion extends HttpServlet {
 						}
 
 						if(categoryId == 1) {
-							
-						}
-						else if(categoryId == 2) {
-							
-						}
-						else if(categoryId == 3) { // True or False
-							String answerString = request.getParameter("trueFalseAnswer");
-							if(answerString != null) {
-								if(answerString.matches("[01]")) {
-									trueFalseAnswer = Integer.parseInt(answerString);
-									Boolean suc =  TrueFalseAnswer.update(questionId, trueFalseAnswer);
-									if(suc)
-									{
-										success = "Question Updated SuccessFully";
+
+							if(answerString != null && mcqOptionAnswerString != null) {
+
+								if(answerString.length >= 1) {
+									ArrayList<String> optionsError = new ArrayList<String>();
+									for(int i=0; i<answerString.length; i++) {
+										mcqOptionAnswerSelected.put(i+1, false);
+										answerString[i] = answerString[i].trim();
+										String msg = "";
+										if(answerString[i].equals("")) {
+											msg = "Option cannot be empty";
+											control = false;
+										}
+										optionsError.add(msg);
+									}
+									errorLog.put("optionsError", optionsError);
+								}
+								if(answerString.length < 2) {
+									errorLog.put("mcqOption", "Atleast 2 mcq options are required");
+									control = false;
+								}
+								
+								if(mcqOptionAnswerString.equals("")) {
+									errorLog.put("mcqOptionAnswers", "Select correct answer");
+									control = false;
+								}
+								else if(Validation.onlyDigits(mcqOptionAnswerString)){
+									try {
+										Integer serial = Integer.parseInt(mcqOptionAnswerString);
+										if(serial < 1 || serial > answerString.length) {
+											errorLog.put("mcqOptionAnswers", "Invalid correct answer");
+											control = false;
+										}
+										else {
+											mcqOptionAnswerSelected.put(serial, true);
+										}
+									} catch(Exception e) {
+										errorLog.put("mcqOptionAnswers", "Invalid correct answer");
+										control = false;
 									}
 								}
 								else {
+									errorLog.put("mcqOptionAnswers", "Invalid correct answer");
+									control = false;
+								}
+							}
+							else {
+								control = false;
+								errorLog.put("mcqOption", "Add options");
+							}
+							
+							
+						}
+						else if(categoryId == 2) {
+
+							if(answerString != null && mcqOptionAnswerString != null) {
+								if(answerString.length >= 1) {
+									ArrayList<String> optionsError = new ArrayList<String>();
+									for(int i=0; i<answerString.length; i++) {
+										mcqOptionAnswerSelected.put(i+1, false);
+										answerString[i] = answerString[i].trim();
+										String msg = "";
+										if(answerString[i].equals("")) {
+											msg = "Option cannot be empty";
+											control = false;
+										}
+										optionsError.add(msg);
+									}
+									errorLog.put("optionsError", optionsError);
+								}
+								if(answerString.length < 2) {
+									errorLog.put("mcqOption", "Atleast 2 mcq options are required");
+									control = false;
+								}
+								
+								if(mcqOptionAnswerString.equals("")) {
+									errorLog.put("mcqOptionAnswers", "Select correct answers");
+									control = false;
+								}
+								else {
+									String[] answers = mcqOptionAnswerString.split(",");
+									if(answers.length == 0) {
+										errorLog.put("mcqOptionAnswers", "Select correct answers");
+										control = false;
+									}
+									else {
+										Boolean answerSelected = false;
+										for(int i=0; i<answers.length; i++) {
+											try {
+												Integer serial = Integer.parseInt(answers[i]);
+												System.out.println(serial + " serial");
+												if(serial >= 1 && serial <= answerString.length) {
+													mcqOptionAnswerSelected.put(serial, true);
+													answerSelected = true;
+												}
+												else {
+													errorLog.put("mcqOptionAnswers", "Invalid answer serial no");
+													control = false;
+												}
+											} catch(Exception e) {
+												errorLog.put("mcqOptionAnswers", "Invalid answer serial no");
+												control = false;
+											}
+										}
+										if(!answerSelected) {
+											errorLog.put("mcqOptionAnswers", "Select correct options");
+											control = false;
+										}
+									}
+								}
+							}
+
+							
+						}
+						else if(categoryId == 3) { // True or False
+							if(trueFalseAnswerString != null) {
+								if(!trueFalseAnswerString.matches("[01]")) {
 									control = false;
 									errorLog.put("trueFalseAnswer", "Invalid answer");
+								}
+								else {
+									trueFalseAnswer = Integer.parseInt(trueFalseAnswerString);
 								}
 							}
 							else {
@@ -148,11 +259,30 @@ public class UpdateQuestion extends HttpServlet {
 
 						Boolean result = Question.update(questionId, question, score, negative, explanation, timeDuration);
 						if(result) {
-							if(categoryId == 1) {
-								
-							}
-							else if(categoryId == 2) {
-								
+							if(categoryId == 1 || categoryId == 2) {
+								Boolean oldOptionsDeleted = MultipleChoiceQuestionOption.deleteAllOptions(questionId);
+								if(oldOptionsDeleted) {
+									Boolean optionsAdded = true;
+									for(int i=0; i<answerString.length; i++) {
+										Integer optionId = MultipleChoiceQuestionOption.add(questionId, answerString[i]);
+										if(optionId == 0) { // option not inserted
+											optionsAdded = false;
+											break;
+										}
+										if(optionId > 0 && mcqOptionAnswerSelected.get(i+1)) { // insert if this opiton is correct answer
+											if(!MultipleChoiceAnswer.add(questionId, optionId)) {
+												optionsAdded = false;
+												break;
+											}
+										}
+									}
+									if(!optionsAdded) {
+										error = "Something went wrong while adding new options";
+									}
+								}
+								else {
+									error = "Something went wrong while deleting old options";
+								}
 							}
 							else if(categoryId == 3) {
 								TrueFalseAnswer.update(questionId, trueFalseAnswer);

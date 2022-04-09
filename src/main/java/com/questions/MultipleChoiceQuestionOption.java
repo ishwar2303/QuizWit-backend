@@ -56,6 +56,18 @@ public class MultipleChoiceQuestionOption {
 		con.close();
 		return count > 0 ? true : false;
 	}
+
+	public static boolean deleteAllOptions(Integer questionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "DELETE FROM McqOptions WHERE questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
 	
 
 	public static Integer authorized(Integer optionId) throws SQLException, ClassNotFoundException {
