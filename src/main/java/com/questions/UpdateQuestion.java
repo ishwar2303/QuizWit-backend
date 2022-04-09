@@ -68,7 +68,7 @@ public class UpdateQuestion extends HttpServlet {
 						if(question != null && scoreString != null && negativeMarkingString != null && explanation != null && timeDurationString != null) {
 							question = question.trim();
 							explanation = explanation.trim();
-							if(question.equals(question)) {
+							if(question.equals("")) {
 								control = false;
 								errorLog.put("question", "Question required");
 							}
