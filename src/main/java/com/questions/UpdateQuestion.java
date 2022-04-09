@@ -46,7 +46,7 @@ public class UpdateQuestion extends HttpServlet {
 				if(authorized == adminId) {
 					Integer categoryId = Question.categoryId(questionId);
 					String categoryIdString = Integer.toString(categoryId);
-					
+
 					Boolean control = true;
 					// Common question details validation
 
@@ -62,7 +62,7 @@ public class UpdateQuestion extends HttpServlet {
 					
 					Integer trueFalseAnswer = 0;
 					
-					
+
 					if(categoryIdString.matches("[123]")) {
 						
 						if(question != null && scoreString != null && negativeMarkingString != null && explanation != null && timeDurationString != null) {
@@ -99,7 +99,9 @@ public class UpdateQuestion extends HttpServlet {
 							
 							if(Validation.onlyDigits(timeDurationString)) {
 								timeDuration = Integer.parseInt(timeDurationString);
-								if(!Question.setQuestionTimer(questionId))
+
+								Integer sectionId = Question.getSectionId(questionId);
+								if(!Question.setQuestionTimer(sectionId))
 									timeDuration = 0;
 							}
 							else {
@@ -108,7 +110,7 @@ public class UpdateQuestion extends HttpServlet {
 							}
 							
 						}
-						
+
 						if(categoryId == 1) {
 							
 						}
@@ -120,6 +122,11 @@ public class UpdateQuestion extends HttpServlet {
 							if(answerString != null) {
 								if(answerString.matches("[01]")) {
 									trueFalseAnswer = Integer.parseInt(answerString);
+									Boolean suc =  TrueFalseAnswer.update(questionId, trueFalseAnswer);
+									if(suc)
+									{
+										success = "Question Updated SuccessFully";
+									}
 								}
 								else {
 									control = false;

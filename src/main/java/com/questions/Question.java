@@ -81,6 +81,21 @@ public class Question {
 		return adminId;
 	}
 	
+	public static Integer getSectionId(Integer questionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "Select sectionId from Questions where questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer sectionId = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return sectionId;
+	}
+	
 	public static boolean setQuestionTimer(Integer sectionId) throws SQLException, ClassNotFoundException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
