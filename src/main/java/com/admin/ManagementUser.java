@@ -33,6 +33,7 @@ public class ManagementUser extends HttpServlet {
 		String userIdString = (String) session.getAttribute("userId");
 		Headers.setRequiredHeaders(response, Origin.getAdmin());
 		JSONObject json = new JSONObject();
+		String success = "", error = "";
 		ArrayList<JSONObject> users = new ArrayList<JSONObject>();
 		try {
 			Integer userId = 0;
@@ -40,11 +41,15 @@ public class ManagementUser extends HttpServlet {
 				userId = Integer.parseInt(userIdString);
 			}
 			users = ManagementUser.getAllUserDetails(adminId, userId);
+			success = "Management users fetched successfully";
 		} catch (ClassNotFoundException | SQLException e) {
 			// TODO Auto-generated catch block
+			error = "Something went wrong while fetching management users";
 			e.printStackTrace();
 		}
 		json.put("users", users);
+		json.put("success", success);
+		json.put("error", error);
 		PrintWriter out = response.getWriter();
 		out.println(json.toString());
 		

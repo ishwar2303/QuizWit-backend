@@ -52,7 +52,7 @@ public class Roles extends HttpServlet {
 			error = "User Id required";
 		}
 		if(roleType != null) {
-			if(!roleType.equals("Assigned") && !roleType.equals("Available")) {
+			if(!roleType.equals("Assigned") && !roleType.equals("Available") && !roleType.equals("AssignedAvailable")) {
 				control = false;
 				error = "Invalid role type";
 			}
@@ -71,6 +71,7 @@ public class Roles extends HttpServlet {
 					json.put("roles", roles);
 					
 				}catch(Exception e) {
+					error = "Something went wrong while fetching roles of user";
 					e.printStackTrace();
 				}
 			}
@@ -82,6 +83,21 @@ public class Roles extends HttpServlet {
 					json.put("roles", roles);
 					
 				}catch(Exception e) {
+					error = "Something went wrong while fetching roles of user";
+					e.printStackTrace();
+				}
+			}
+			else if(roleType.equals("AssignedAvailable")) {
+				try {
+					ArrayList<JSONObject> roles = new ArrayList<JSONObject>();
+					roles = Roles.getAllAssignedRoles(userId);
+					json.put("assignedRoles", roles);
+					roles = Roles.getAllAvailableRoles(userId);
+					json.put("availableRoles", roles);
+					success = "Roles Fetched Successfully";
+					
+				} catch(Exception e) {
+					error = "Something went wrong while fetching roles of user";
 					e.printStackTrace();
 				}
 			}
