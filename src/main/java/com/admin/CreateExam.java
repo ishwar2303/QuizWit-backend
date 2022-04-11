@@ -162,23 +162,29 @@ public class CreateExam extends HttpServlet {
 							timerTypeValue = Integer.parseInt(timerType);
 							if(timerTypeValue == 1) {
 								examTimer = 1;
+								if(timeDuration == null) {
+									errorLog.put("timerDuration", "Select time duration");
+									control = false;
+								}
+								else if(timeDuration.equals("")) {
+									control = false;
+									errorLog.put("timerDuration", "Time duration required");
+								}
+								else if(!Validation.onlyDigits(timeDuration)) {
+									errorLog.put("timerDuration", "Invalid time duration");
+									control = false;
+								}
+								else {
+									timeDurationValue = Integer.parseInt(timeDuration);
+								}
 							}
 							if(timerTypeValue == 2)
 							{
 								sectionTimer = 1;
-								timeDuration = "0";
+								timeDurationValue = 0;
+								examTimer = 0;
 							}
-							if(timeDuration == null) {
-								errorLog.put("timerDuration", "Select time duration");
-								control = false;
-							}
-							else if(!Validation.onlyDigits(timeDuration)) {
-								errorLog.put("timerDuration", "Invalid time duration");
-								control = false;
-							}
-							else {
-								timeDurationValue = Integer.parseInt(timeDuration);
-							}
+							
 						}
 					}
 					else {

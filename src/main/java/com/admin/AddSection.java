@@ -112,25 +112,36 @@ public class AddSection extends HttpServlet {
 						else {
 							Boolean setSectionTimer = Exam.setSectionTimer(examId);
 							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1 && setSectionTimer) {
+							
+							
+							if(timerTypeValue == 1 && setSectionTimer) { // set timer on section
 								sectionTimer = 1;
+								questionTimer = 0;
+								if(timeDuration == null) {
+									errorLog.put("timerDuration", "Select time duration");
+									control = false;
+								}
+								else if(timeDuration.equals("")) {
+									control = false;
+									errorLog.put("timerDuration", "Time duration required");
+								}
+								else if(!Validation.onlyDigits(timeDuration)) {
+									errorLog.put("timerDuration", "Invalid time duration");
+									control = false;
+								}
+								else {
+									timeDurationValue = Integer.parseInt(timeDuration);
+								}
 							}
-							else timeDuration = "0";
-							if(timerTypeValue == 2 && !setSectionTimer)
-							{
+							else if(timerTypeValue == 2 && setSectionTimer) { // set timer on questions
+								sectionTimer = 0;
 								questionTimer = 1;
-								timeDuration = "0";
-							}
-							if(timeDuration == null) {
-								errorLog.put("timerDuration", "Select time duration");
-								control = false;
-							}
-							else if(!Validation.onlyDigits(timeDuration)) {
-								errorLog.put("timerDuration", "Invalid time duration");
-								control = false;
+								timeDurationValue = 0;
 							}
 							else {
-								timeDurationValue = Integer.parseInt(timeDuration);
+								sectionTimer = 0;
+								questionTimer = 0;
+								timeDurationValue = 0;
 							}
 						}
 					}
