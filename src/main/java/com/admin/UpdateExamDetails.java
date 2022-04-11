@@ -190,7 +190,11 @@ public class UpdateExamDetails extends HttpServlet {
 								}
 								else {
 									timeDurationValue = Integer.parseInt(timeDuration);
-									Exam.offSectionTimer(examId); // remove timers from sections
+									if(timeDurationValue == 0) {
+										control = false;
+										errorLog.put("timerDuration", "Invalid time duration");
+									}
+									else Exam.offSectionTimer(examId); // remove timers from sections
 								}
 							}
 							if(timerTypeValue == 2)

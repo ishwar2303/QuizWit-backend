@@ -176,6 +176,10 @@ public class CreateExam extends HttpServlet {
 								}
 								else {
 									timeDurationValue = Integer.parseInt(timeDuration);
+									if(timeDurationValue == 0) {
+										control = false;
+										errorLog.put("timerDuration", "Invalid time duration");
+									}
 								}
 							}
 							if(timerTypeValue == 2)

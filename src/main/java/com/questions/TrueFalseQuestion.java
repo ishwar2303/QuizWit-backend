@@ -131,12 +131,12 @@ public class TrueFalseQuestion extends HttpServlet {
 					if(Validation.onlyDigits(negativeMarkingString)) {
 						negativeMarking = Double.parseDouble(negativeMarkingString);
 						if(negativeMarking < 0) {
-							errorLog.put("negativemarking", "Enter positive value");
+							errorLog.put("negativeMarking", "Enter positive value");
 							control = false;
 						}
 					}
 					else {
-						errorLog.put("negativemarking", "Invalid negative marking");
+						errorLog.put("negativeMarking", "Invalid negative marking");
 						control = false;
 					}
 					

@@ -103,51 +103,56 @@ public class AddSection extends HttpServlet {
 						questionNavigationValue  = Integer.parseInt(questionNavigation);
 					}
 					
-					
-					if(timerType != null) {
-						if(!timerType.matches("[12]")) {
-							errorLog.put("timerType", "Invalid timer type");
-							control = false;
-						}
-						else {
-							Boolean setSectionTimer = Exam.setSectionTimer(examId);
-							timerTypeValue = Integer.parseInt(timerType);
-							
-							
-							if(timerTypeValue == 1 && setSectionTimer) { // set timer on section
-								sectionTimer = 1;
-								questionTimer = 0;
-								if(timeDuration == null) {
-									errorLog.put("timerDuration", "Select time duration");
-									control = false;
-								}
-								else if(timeDuration.equals("")) {
-									control = false;
-									errorLog.put("timerDuration", "Time duration required");
-								}
-								else if(!Validation.onlyDigits(timeDuration)) {
-									errorLog.put("timerDuration", "Invalid time duration");
-									control = false;
-								}
-								else {
-									timeDurationValue = Integer.parseInt(timeDuration);
-								}
-							}
-							else if(timerTypeValue == 2 && setSectionTimer) { // set timer on questions
-								sectionTimer = 0;
-								questionTimer = 1;
-								timeDurationValue = 0;
+
+					Boolean setSectionTimer = Exam.setSectionTimer(examId);
+					if(setSectionTimer) {
+						if(timerType != null) {
+							if(!timerType.matches("[12]")) {
+								errorLog.put("timerType", "Invalid timer type");
+								control = false;
 							}
 							else {
-								sectionTimer = 0;
-								questionTimer = 0;
-								timeDurationValue = 0;
+								timerTypeValue = Integer.parseInt(timerType);
+								
+								
+								if(timerTypeValue == 1) { // set timer on section
+									sectionTimer = 1;
+									questionTimer = 0;
+									if(timeDuration == null) {
+										errorLog.put("timerDuration", "Select time duration");
+										control = false;
+									}
+									else if(timeDuration.equals("")) {
+										control = false;
+										errorLog.put("timerDuration", "Time duration required");
+									}
+									else if(!Validation.onlyDigits(timeDuration)) {
+										errorLog.put("timerDuration", "Invalid time duration");
+										control = false;
+									}
+									else {
+										timeDurationValue = Integer.parseInt(timeDuration);
+										if(timeDurationValue == 0) {
+											control = false;
+											errorLog.put("timerDuration", "Invalid time duration");
+										}
+									}
+								}
+								else if(timerTypeValue == 2 && setSectionTimer) {
+									questionTimer = 1;
+									timeDurationValue = 0;
+								}
+								else {
+									sectionTimer = 0;
+									questionTimer = 0;
+									timeDurationValue = 0;
+								}
 							}
 						}
-					}
-					else {
-						errorLog.put("timerType", "Select timer type");
-						control = false;
+						else {
+							errorLog.put("timerType", "Select timer type");
+							control = false;
+						}
 					}
 					
 					if(shuffleQuestionsString != null)

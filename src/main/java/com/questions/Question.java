@@ -180,5 +180,17 @@ public class Question {
 		con.close();
 		return categoryId;
 	}
+	public static boolean offQuestionTimer(Integer sectionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "Update Questions set timeDuration = 0 where sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+
 	
 }
