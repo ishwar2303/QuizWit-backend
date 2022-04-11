@@ -119,10 +119,11 @@ public class UpdateSectionDetails extends HttpServlet {
 								System.out.println("in else");
 								timeDuration = "0";
 							}
-							if(timerTypeValue == 2 && !setSectionTimer)
+							if(timerTypeValue == 2)
 							{
 								questionTimer = 1;
 								timeDuration = "0";
+								sectionTimer = 0;
 							}
 							if(timeDuration == null) {
 								errorLog.put("timerDuration", "Select time duration");

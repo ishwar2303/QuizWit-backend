@@ -37,6 +37,7 @@ public class Registration extends HttpServlet {
 		String error = "";
 		JSONObject errorLog = new JSONObject();
 		
+		
 		HttpSession session = req.getSession();
 		Boolean verifiedEmail = (Boolean) session.getAttribute("verifiedEmail");
 		String verifiedEmailDesc = (String) session.getAttribute("verifiedEmailDesc");
@@ -47,6 +48,7 @@ public class Registration extends HttpServlet {
 		if(fullName != null && email != null && contact != null && password != null && confirmPassword != null) {
 			Boolean control = true;
 			
+			fullName = fullName.trim();
 			if(user == null) {
 				control = false;
 				errorLog.put("user", "Select your role");

@@ -103,41 +103,44 @@ public class AddSection extends HttpServlet {
 						questionNavigationValue  = Integer.parseInt(questionNavigation);
 					}
 					
-					
-					if(timerType != null) {
-						if(!timerType.matches("[12]")) {
-							errorLog.put("timerType", "Invalid timer type");
-							control = false;
-						}
-						else {
-							Boolean setSectionTimer = Exam.setSectionTimer(examId);
-							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1 && setSectionTimer) {
-								sectionTimer = 1;
-							}
-							else timeDuration = "0";
-							if(timerTypeValue == 2 && !setSectionTimer)
-							{
-								questionTimer = 1;
-								timeDuration = "0";
-							}
-							if(timeDuration == null) {
-								errorLog.put("timerDuration", "Select time duration");
-								control = false;
-							}
-							else if(!Validation.onlyDigits(timeDuration)) {
-								errorLog.put("timerDuration", "Invalid time duration");
+					if(Exam.setSectionTimer(examId))
+					{
+						if(timerType != null) {
+							if(!timerType.matches("[12]")) {
+								errorLog.put("timerType", "Invalid timer type");
 								control = false;
 							}
 							else {
-								timeDurationValue = Integer.parseInt(timeDuration);
+								Boolean setSectionTimer = Exam.setSectionTimer(examId);
+								timerTypeValue = Integer.parseInt(timerType);
+								if(timerTypeValue == 1 && setSectionTimer) {
+									sectionTimer = 1;
+								}
+								else timeDuration = "0";
+								if(timerTypeValue == 2 && !setSectionTimer)
+								{
+									questionTimer = 1;
+									timeDuration = "0";
+								}
+								if(timeDuration == null) {
+									errorLog.put("timerDuration", "Select time duration");
+									control = false;
+								}
+								else if(!Validation.onlyDigits(timeDuration)) {
+									errorLog.put("timerDuration", "Invalid time duration");
+									control = false;
+								}
+								else {
+									timeDurationValue = Integer.parseInt(timeDuration);
+								}
 							}
 						}
+						else {
+							errorLog.put("timerType", "Select timer type");
+							control = false;
+						}
 					}
-					else {
-						errorLog.put("timerType", "Select timer type");
-						control = false;
-					}
+					
 					
 					if(shuffleQuestionsString != null)
 					{
