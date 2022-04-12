@@ -40,7 +40,7 @@ public class Exam {
 	public static boolean offSectionTimer(Integer examId) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "Update Sections set setSectionTimer = 0, timeDuration = 0 where examId = ?";
+		String sql = "Update Sections set setSectionTimer = 0, setQuestionTimer = 0, timeDuration = 0 where examId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, examId);
 		Integer count = st.executeUpdate();

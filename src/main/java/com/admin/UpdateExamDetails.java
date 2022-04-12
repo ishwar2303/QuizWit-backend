@@ -18,6 +18,7 @@ import org.json.simple.JSONObject;
 import com.config.Headers;
 import com.config.Origin;
 import com.database.AdminDatabaseConnectivity;
+import com.questions.Question;
 import com.util.Validation;
 
 /**
@@ -174,7 +175,7 @@ public class UpdateExamDetails extends HttpServlet {
 						}
 						else {
 							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1) {
+							if(timerTypeValue == 1) { // timer on entire exam
 								examTimer = 1;
 								if(timeDuration == null) {
 									errorLog.put("timerDuration", "Select time duration");
@@ -194,10 +195,13 @@ public class UpdateExamDetails extends HttpServlet {
 										control = false;
 										errorLog.put("timerDuration", "Invalid time duration");
 									}
-									else Exam.offSectionTimer(examId); // remove timers from sections
+									else {
+										Exam.offSectionTimer(examId); // remove timers from sections
+										Question.removeTimers(examId); // remove timers from questions 
+									}
 								}
 							}
-							if(timerTypeValue == 2)
+							if(timerTypeValue == 2) // set timer from sections
 							{
 								sectionTimer = 1;
 								timeDurationValue = 0;

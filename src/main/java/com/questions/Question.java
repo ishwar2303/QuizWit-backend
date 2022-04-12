@@ -191,6 +191,17 @@ public class Question {
 		con.close();
 		return count > 0 ? true : false;
 	}
-
+	
+	public static boolean removeTimers(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "UPDATE Questions SET timeDuration = 0 WHERE sectionId in (select sectionId from Sections where examId = ?)";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
 	
 }
