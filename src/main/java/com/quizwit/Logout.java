@@ -48,5 +48,10 @@ public class Logout extends HttpServlet {
 		json.put("error", error);
 		out.println(json.toString());
 	}
+	
+	public static void logout(HttpServletRequest request) {
+		HttpSession session = request.getSession();
+		session.invalidate();
+	}
 
 }

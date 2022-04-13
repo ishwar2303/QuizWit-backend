@@ -33,7 +33,8 @@ public class LoginAdmin extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
 		HttpSession session = request.getSession();
-		
+
+		Headers.setRequiredHeaders(response, Origin.getAdmin());
 		String user = request.getParameter("user");
 		String email = request.getParameter("email");
 		String password = request.getParameter("password");
@@ -47,102 +48,115 @@ public class LoginAdmin extends HttpServlet {
 		
 		Boolean control = true;
 		JSONObject errorLog = new JSONObject();
-		if(user == null) {
-			errorLog.put("user", "Please select role");
-		}
-		Headers.setRequiredHeaders(response, Origin.getAdmin());
-		if(email != null && password != null && user != null) {
-			
 
-			if(!user.matches("[12]")) {
+		
+		if(session.getAttribute("loggedIn") != null && (boolean) session.getAttribute("loggedIn")) { // user logged in
+			JSONObject adminDetails = (JSONObject) session.getAttribute("details");
+			adminDetails.put("currentTime", System.currentTimeMillis()/1000);
+			json.put("details", adminDetails);
+			success = "Logged in successfully";
+		}
+		else {
+			if(user == null) {
 				control = false;
-				errorLog.put("user", "Invalid Role");
+				errorLog.put("user", "Please select role");
 			}
-			
-			if(email == "") {
-				control = false;
-	 			errorLog.put("email", "E-mail/Username required");
-			}
-			else if(user.equals("1")) {
-				try {
-					if(!admin.exists(email)) {
-						control = false;
-						errorLog.put("email", "E-mail not registered");
-					}
-				}catch(Exception e) {
-					e.printStackTrace();
+			if(email != null && password != null && user != null) {
+				
+
+				if(!user.matches("[12]")) {
+					control = false;
+					errorLog.put("user", "Invalid Role");
 				}
-			}
-			
-			if(password == "") {
-				control = false;
-	 			errorLog.put("password", "Password required");
-			}
-			
-			if(control) {
-				Integer id = 0;
-				if(user.equals("1")) { // Admin
-					try {
-						id = Admin.login(email, password); // returns administratorId
-					}catch(Exception e) {
-						e.printStackTrace();
-					}
+				
+				if(email == "") {
+					control = false;
+		 			errorLog.put("email", "E-mail/Username required");
 				}
-				else { // Management User
+				else if(user.equals("1")) {
 					try {
-						id = ManagementUser.login(email, password); // returns userId
+						if(!admin.exists(email)) {
+							control = false;
+							errorLog.put("email", "E-mail not registered");
+						}
 					}catch(Exception e) {
 						e.printStackTrace();
 					}
 				}
 				
-				if(id != 0) {
-					JSONObject details = new JSONObject();
+				if(password == "") {
+					control = false;
+		 			errorLog.put("password", "Password required");
+				}
+				
+				if(control) {
+					Integer id = 0;
 					if(user.equals("1")) { // Admin
 						try {
-							LoginAdmin.setAdminRoles(request);
-							details = admin.details(id);
-							session.setAttribute("Administrator", true);
-							session.setAttribute("userId", "0");
-							details.put("userType", "Administrator");
+							id = Admin.login(email, password); // returns administratorId
 						}catch(Exception e) {
 							e.printStackTrace();
 						}
 					}
 					else { // Management User
 						try {
-							LoginAdmin.setManagementUserRoles(request, id);
-							details = ManagementUser.getDetails(id);
-							details.put("fullName", details.get("username"));
-							details.put("userType", "Management User");
-							session.setAttribute("userId", details.get("userId"));
-							session.setAttribute("ManagementUser", true);
+							id = ManagementUser.login(email, password); // returns userId
 						}catch(Exception e) {
 							e.printStackTrace();
 						}
 					}
-					System.out.println(details);
-					session.setAttribute("administratorId", details.get("administratorId"));
-					// set info in session
-					session.setAttribute("loggedIn", true);
-					session.setAttribute("details", details);
+					
+					if(id != 0) {
+						JSONObject details = new JSONObject();
+						if(user.equals("1")) { // Admin
+							try {
+								LoginAdmin.setAdminRoles(request);
+								details = admin.details(id);
+								session.setAttribute("Administrator", true);
+								session.setAttribute("userId", "0");
+								details.put("userType", "Administrator");
+							}catch(Exception e) {
+								e.printStackTrace();
+							}
+						}
+						else { // Management User
+							try {
+								LoginAdmin.setManagementUserRoles(request, id);
+								details = ManagementUser.getDetails(id);
+								details.put("fullName", details.get("username"));
+								details.put("userType", "Management User");
+								session.setAttribute("userId", details.get("userId"));
+								session.setAttribute("ManagementUser", true);
+							}catch(Exception e) {
+								e.printStackTrace();
+							}
+						}
+						System.out.println(details);
+						session.setAttribute("administratorId", details.get("administratorId"));
+						// set info in session
+						details.put("loginTime", System.currentTimeMillis()/1000);
+						session.setAttribute("loggedIn", true);
+						details.put("currentTime", System.currentTimeMillis()/1000);
+						session.setAttribute("details", details);
+
+						json.put("details", (JSONObject) session.getAttribute("details"));
+						success = "Logged in successfully";
+					}
+					else {
+						error = "Invalid credentials or Your account is block <br/> Contact your administrator if issue persist.";
+					}
 				}
 				else {
-					error = "Invalid credentials or Your account is block <br/> Contact your administrator if issue persist.";
+					error = "Please fill required fields appropriately";
 				}
 			}
 			else {
-				error = "Please fill required fields appropriately";
+				error = "Please fill required fields appropriately | check name attributes in request";
 			}
-		}
-		else {
-			error = "Please fill required fields appropriately | check name attributes in request";
+			
 		}
 		
-		if(session.getAttribute("loggedIn") != null && (boolean) session.getAttribute("loggedIn")) { // user logged in
-			json.put("details", (JSONObject) session.getAttribute("details"));
-			success = "Logged in successfully";
-		}
+		
 		PrintWriter out = response.getWriter();
 		json.put("success", success);
 		json.put("error", error);

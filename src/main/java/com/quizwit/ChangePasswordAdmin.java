@@ -37,88 +37,99 @@ public class ChangePasswordAdmin extends HttpServlet {
 
 		HttpSession session = request.getSession();
 		Headers.setRequiredHeaders(response, Origin.getAdmin());
-		Integer adminId = Integer.parseInt((String) session.getAttribute("administratorId"));
-		Integer userId  = Integer.parseInt((String) session.getAttribute("userId"));
+		String adminIdString = (String) session.getAttribute("administratorId");
+		String userIdString = (String) session.getAttribute("userId");
+		Integer adminId = 0, userId = 0;
 		
 		String success = "", error = "";
 		JSONObject errorLog = new JSONObject();
+		JSONObject json = new JSONObject();
 		
-		if(adminId == null)
-			return;
-		
-		try {
-			String oldPassword = request.getParameter("oldPassword");
-			String newPassword = request.getParameter("newPassword");
-			String confirmPassword = request.getParameter("newConfirmPassword");
-			Boolean control = true;
-			if(oldPassword != null && newPassword != null && confirmPassword != null) {
-				oldPassword = oldPassword.trim();
-				newPassword = newPassword.trim();
-				confirmPassword = confirmPassword.trim();
+		if(adminId == null) {
+			json.put("logout", true);
+		}
+		else {
+			adminId = Integer.parseInt((String) session.getAttribute("administratorId"));
+			userId  = Integer.parseInt((String) session.getAttribute("userId"));
+			if(SessionTimeout.check(request))
+				json.put("sessionTimeout", true);
+			else {
 
-				if(oldPassword.equals("")) {
-					control = false;
-					errorLog.put("oldPassword", "Old password required");
-				}
-				else {
-					Boolean passwordMatched = false;
-					if(userId == 0) { // admin
-						passwordMatched = ChangePasswordAdmin.checkAdminPassword(adminId, oldPassword);
+				try {
+					String oldPassword = request.getParameter("oldPassword");
+					String newPassword = request.getParameter("newPassword");
+					String confirmPassword = request.getParameter("newConfirmPassword");
+					Boolean control = true;
+					if(oldPassword != null && newPassword != null && confirmPassword != null) {
+						oldPassword = oldPassword.trim();
+						newPassword = newPassword.trim();
+						confirmPassword = confirmPassword.trim();
+
+						if(oldPassword.equals("")) {
+							control = false;
+							errorLog.put("oldPassword", "Old password required");
+						}
+						else {
+							Boolean passwordMatched = false;
+							if(userId == 0) { // admin
+								passwordMatched = ChangePasswordAdmin.checkAdminPassword(adminId, oldPassword);
+							}
+							else { // management user
+								passwordMatched = ChangePasswordAdmin.checkUserPassword(userId, oldPassword);
+							}
+							if(!passwordMatched) {
+								control = false;
+								errorLog.put("oldPassword", "Incorrect old password");
+							}
+						}
+						if(newPassword.equals("")) {
+							control = false;
+							errorLog.put("newPassword", "New password required");
+						}
+						else if(newPassword.length() < 8) {
+							control = false;
+							errorLog.put("newPassword", "Password must contain atleast 8 characters");
+						}
+						if(confirmPassword.equals("")) {
+							control = false;
+							errorLog.put("confirmPassword", "Confirm password required");
+						}
+						else if(!confirmPassword.matches(newPassword)) {
+							control = false;
+							errorLog.put("confirmPassword", "Password doesn't match");
+						}
+						
+						if(control) { // update password
+							Boolean result = false;
+							if(userId == 0) {
+								result = ChangePasswordAdmin.updateAdminPassword(adminId, newPassword);
+							}
+							else {
+								result = ChangePasswordAdmin.updateUserPassword(userId, newPassword);
+							}
+							if(result) {
+								success = "Password changed successfully";
+							}
+							else {
+								error = "Something went wrong while updating password";
+							}
+						}
+						else {
+							error = "Please fill required fields appropriately";
+						}
 					}
-					else { // management user
-						passwordMatched = ChangePasswordAdmin.checkUserPassword(userId, oldPassword);
+					else {
+						error = "Please fill required fields appropriately";
 					}
-					if(!passwordMatched) {
-						control = false;
-						errorLog.put("oldPassword", "Incorrect old password");
-					}
-				}
-				if(newPassword.equals("")) {
-					control = false;
-					errorLog.put("newPassword", "New password required");
-				}
-				else if(newPassword.length() < 8) {
-					control = false;
-					errorLog.put("newPassword", "Password must contain atleast 8 characters");
-				}
-				if(confirmPassword.equals("")) {
-					control = false;
-					errorLog.put("confirmPassword", "Confirm password required");
-				}
-				else if(!confirmPassword.matches(newPassword)) {
-					control = false;
-					errorLog.put("confirmPassword", "Password doesn't match");
+					
+				}catch(Exception e) {
+					e.printStackTrace();
 				}
 				
-				if(control) { // update password
-					Boolean result = false;
-					if(userId == 0) {
-						result = ChangePasswordAdmin.updateAdminPassword(adminId, newPassword);
-					}
-					else {
-						result = ChangePasswordAdmin.updateUserPassword(userId, newPassword);
-					}
-					if(result) {
-						success = "Password changed successfully";
-					}
-					else {
-						error = "Something went wrong while updating password";
-					}
-				}
-				else {
-					error = "Please fill required fields appropriately";
-				}
 			}
-			else {
-				error = "Please fill required fields appropriately";
-			}
-			
-		}catch(Exception e) {
-			e.printStackTrace();
 		}
 		
 		
-		JSONObject json = new JSONObject();
 		json.put("success", success);
 		json.put("error", error);
 		json.put("errorLog", errorLog);
