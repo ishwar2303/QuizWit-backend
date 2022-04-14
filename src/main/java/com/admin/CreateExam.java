@@ -160,7 +160,7 @@ public class CreateExam extends HttpServlet {
 						}
 						else {
 							timerTypeValue = Integer.parseInt(timerType);
-							if(timerTypeValue == 1) {
+							if(timerTypeValue == 1) { // exam Timer
 								examTimer = 1;
 								if(timeDuration == null) {
 									errorLog.put("timerDuration", "Select time duration");
@@ -182,11 +182,12 @@ public class CreateExam extends HttpServlet {
 									}
 								}
 							}
-							if(timerTypeValue == 2)
+							if(timerTypeValue == 2) // section Timer
 							{
 								sectionTimer = 1;
 								timeDurationValue = 0;
 								examTimer = 0;
+								sectionNavigationValue = 0; // off section navigation
 							}
 							
 						}

@@ -206,6 +206,7 @@ public class UpdateExamDetails extends HttpServlet {
 								sectionTimer = 1;
 								timeDurationValue = 0;
 								examTimer = 0;
+								sectionNavigationValue = 0;
 							}
 							
 						}

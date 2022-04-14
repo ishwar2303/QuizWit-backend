@@ -138,9 +138,10 @@ public class AddSection extends HttpServlet {
 										}
 									}
 								}
-								else if(timerTypeValue == 2 && setSectionTimer) {
+								else if(timerTypeValue == 2 && setSectionTimer) { // question Timer
 									questionTimer = 1;
 									timeDurationValue = 0;
+									questionNavigationValue = 0;
 								}
 								else {
 									sectionTimer = 0;

@@ -143,6 +143,7 @@ public class UpdateSectionDetails extends HttpServlet {
 									sectionTimer = 0;
 									questionTimer = 1;
 									timeDurationValue = 0;
+									questionNavigationValue = 0;
 									Section.offSectionTimer(sectionId);
 								}
 								else {
