@@ -1,5 +1,7 @@
 package com.admin;
 
+import static org.junit.Assert.assertFalse;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -51,15 +53,22 @@ public class UpdateExamStatus extends HttpServlet {
 						Integer status = Integer.parseInt(statusString);
 						Boolean result = false;
 						ArrayList<JSONObject> sections = ViewSections.fetchAllSections(examId);
+						boolean control = true;
+						
 						if(sections.size() == 0)
-							return;
-						for(int i=0; i<sections.size(); i++) {
-							JSONObject section = sections.get(i);
-							Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
-							Integer questionCount = Question.count(sectionId);
-							if(questionCount == 0)
-								return;
+							control = false;
+						if(control) {
+							for(int i=0; i<sections.size(); i++) {
+								JSONObject section = sections.get(i);
+								Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
+								Integer questionCount = Question.count(sectionId);
+								if(questionCount == 0) {
+									control = false;
+									break;
+								}
+							}
 						}
+						
 
 						/*
 						 * 
@@ -70,7 +79,10 @@ public class UpdateExamStatus extends HttpServlet {
 						 * 
 						 * 
 						 * */
-						result = UpdateExamStatus.updateStatus(adminId, examId, status);
+						if(control)
+						{
+							result = UpdateExamStatus.updateStatus(adminId, examId, status);
+						}
 						if(result)
 							success = "Status changed";
 						else error = "Something went wrong in database while changing exam status";
