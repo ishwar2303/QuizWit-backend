@@ -38,7 +38,7 @@ public class UpdateExamStatus extends HttpServlet {
 		Integer userId  = Integer.parseInt((String) session.getAttribute("userId"));
 		String success = "", error = "";
 		JSONObject json = new JSONObject();
-		
+		ArrayList<String> errorLog = new ArrayList<String>();
 		if(adminId == null)
 			return;
 
@@ -55,41 +55,40 @@ public class UpdateExamStatus extends HttpServlet {
 						ArrayList<JSONObject> sections = ViewSections.fetchAllSections(examId);
 						boolean control = true;
 						
-						if(sections.size() == 0)
+						if(sections.size() == 0) {
 							control = false;
-						if(control) {
+							errorLog.add("Exam doesn't contain any section");
+						}
+						if(sections.size() > 0) {
 							for(int i=0; i<sections.size(); i++) {
 								JSONObject section = sections.get(i);
 								Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
 								Integer questionCount = Question.count(sectionId);
 								if(questionCount == 0) {
 									control = false;
-									break;
+									errorLog.add(section.get("title") + " section doesn't contain any question.");
 								}
 							}
 						}
 						
 
-						/*
-						 * 
-						 *  All exam sections must contain questions means atleast 1 question
-						 *  
-						 * 
-						 * 
-						 * 
-						 * 
-						 * */
 						if(control)
 						{
 							result = UpdateExamStatus.updateStatus(adminId, examId, status);
+							if(result)
+								success = "Status changed";
+							else error = "Something went wrong in database while changing exam status";
 						}
-						if(result)
-							success = "Status changed";
-						else error = "Something went wrong in database while changing exam status";
+						else {
+							error = "Please do all required actions on exam to activate it.";
+						}
 					}
 					else {
 						error = "Invalid id or status code";
 					}
+				}
+				else {
+					error = "Exam Id and status required to update";
 				}
 			}
 			else {
@@ -100,6 +99,7 @@ public class UpdateExamStatus extends HttpServlet {
 			error = "Something went wrong";
 		}
 
+		json.put("errorLog", errorLog);
 		json.put("success", success);
 		json.put("error", error);
 		PrintWriter out = response.getWriter();
