@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,6 +19,7 @@ import org.json.simple.JSONObject;
 import com.config.Headers;
 import com.config.Origin;
 import com.database.AdminDatabaseConnectivity;
+import com.questions.Question;
 import com.util.Validation;
 
 /**
@@ -48,6 +50,17 @@ public class UpdateExamStatus extends HttpServlet {
 						Integer examId = Integer.parseInt(examIdString);
 						Integer status = Integer.parseInt(statusString);
 						Boolean result = false;
+						ArrayList<JSONObject> sections = ViewSections.fetchAllSections(examId);
+						if(sections.size() == 0)
+							return;
+						for(int i=0; i<sections.size(); i++) {
+							JSONObject section = sections.get(i);
+							Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
+							Integer questionCount = Question.count(sectionId);
+							if(questionCount == 0)
+								return;
+						}
+
 						/*
 						 * 
 						 *  All exam sections must contain questions means atleast 1 question
