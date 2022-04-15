@@ -49,7 +49,7 @@ public class UpdateExamDetails extends HttpServlet {
 				String difficultyLevel = request.getParameter("difficultyLevel"); // radio
 				String visibility = request.getParameter("private"); // radio
 				String sectionNavigation = request.getParameter("sectionNavigation"); // radio
-				String startTime = request.getParameter("startTime");
+				String startTimeString = request.getParameter("startTime");
 				String endTime = request.getParameter("endTime");
 				String windowTime = request.getParameter("windowTime");
 				String numberOfAttempts = request.getParameter("numberOfAttempts");
@@ -66,9 +66,10 @@ public class UpdateExamDetails extends HttpServlet {
 				Integer sectionTimer = 0;
 				Integer sectionNavigationValue = 1;
 				Integer visibilityValue = 0;
+				Long 	startTime = (long) 0;
 				
 				Boolean control = true;
-				if(examId != null && title != null && description != null && startTime != null && windowTime != null && numberOfAttempts != null && instruction != null) {
+				if(examId != null && title != null && description != null && startTimeString != null && windowTime != null && numberOfAttempts != null && instruction != null) {
 					if(Validation.onlyDigits(examIdString)) {
 						examId = Integer.parseInt(examIdString);
 						try {
@@ -135,15 +136,23 @@ public class UpdateExamDetails extends HttpServlet {
 						errorLog.put("windowTime", "Invalid window time");
 						control = false;
 					}
-					
-					if(startTime.equals("")) {
+
+					if(startTimeString.equals("")) {
 						errorLog.put("startTime", "Start time required");
 						control = false;
 					}
-//					else if(!Validation.timestamp(startTime)) {
-//						errorLog.put("startTime", "Invalid start time");
-//						control = false;
-//					}
+					else if(!Validation.onlyDigits(startTimeString)) {
+						errorLog.put("startTime", "Invalid start time");
+						control = false;
+					}
+					else {
+						startTime = Long.parseLong(startTimeString)/1000;
+						if(startTime < System.currentTimeMillis()/1000) {
+							errorLog.put("startTime", "Invalid start time");
+							control = false;
+						}
+					}
+					
 					
 					if(!Validation.onlyDigits(windowTime)) {
 						errorLog.put("windowTime", "Invalid window time");
@@ -223,7 +232,7 @@ public class UpdateExamDetails extends HttpServlet {
 							if(examTimer == 1) {
 								Exam.offSectionTimer(examId);
 							}
-							result =  UpdateExamDetails.update(examId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTime, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
+							result =  UpdateExamDetails.update(examId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTimeString, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";

@@ -132,6 +132,23 @@ public class ViewExams extends HttpServlet {
 		}
 		return json;
 	}
+	public static JSONObject fetchExam(Integer examId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select * from `Exams` where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		JSONObject json = new JSONObject();
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+		}
+		return json;
+	}
 	
 
 	public static Integer examsCount(Integer adminId) throws ClassNotFoundException, SQLException {

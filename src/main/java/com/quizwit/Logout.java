@@ -28,8 +28,9 @@ public class Logout extends HttpServlet {
 		if(user != null) {
 			if(user != "" && user.matches("[12]")) {
 				if(user.equals("1")) // Admin
-					Headers.setRequiredHeaders(response, Origin.getAdmin());
-				else Headers.setRequiredHeaders(response, Origin.getStudent()); // Student
+					Headers.setRequiredHeaders(response, Origin.getAdmin()); // Admin
+				else if(user.equals("2")) 
+					Headers.setRequiredHeaders(response, Origin.getExam()); // Exam
 				
 				success = "Logout successfully";
 				session.invalidate();

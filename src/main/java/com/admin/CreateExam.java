@@ -6,6 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -19,6 +21,7 @@ import org.json.simple.JSONObject;
 import com.config.Headers;
 import com.config.Origin;
 import com.database.AdminDatabaseConnectivity;
+import com.google.protobuf.Timestamp;
 import com.util.Validation;
 
 @WebServlet("/CreateExam")
@@ -45,7 +48,7 @@ public class CreateExam extends HttpServlet {
 				String difficultyLevel = request.getParameter("difficultyLevel"); // radio
 				String visibility = request.getParameter("visibility"); // radio
 				String sectionNavigation = request.getParameter("sectionNavigation"); // radio
-				String startTime = request.getParameter("startTime");
+				String startTimeString = request.getParameter("startTime");
 				String endTime = request.getParameter("endTime");
 				String windowTime = request.getParameter("windowTime");
 				String numberOfAttempts = request.getParameter("numberOfAttempts");
@@ -61,9 +64,10 @@ public class CreateExam extends HttpServlet {
 				Integer sectionTimer = 0;
 				Integer sectionNavigationValue = 1;
 				Integer visibilityValue = 0;
-				
+				Long 	startTime = (long) 0;
+				String 	createdOn = Long.toString(System.currentTimeMillis());
 				Boolean control = true;
-				if(title != null && description != null && startTime != null && windowTime != null && numberOfAttempts != null && instruction != null) {
+				if(title != null && description != null && startTimeString != null && windowTime != null && numberOfAttempts != null && instruction != null) {
 					if(title.length() == 0) {
 						errorLog.put("title", "Title required");
 						control = false;
@@ -121,14 +125,21 @@ public class CreateExam extends HttpServlet {
 						control = false;
 					}
 					
-					if(startTime.equals("")) {
+					if(startTimeString.equals("")) {
 						errorLog.put("startTime", "Start time required");
 						control = false;
 					}
-//					else if(!Validation.timestamp(startTime)) {
-//						errorLog.put("startTime", "Invalid start time");
-//						control = false;
-//					}
+					else if(!Validation.onlyDigits(startTimeString)) {
+						errorLog.put("startTime", "Invalid start time");
+						control = false;
+					}
+					else {
+						startTime = Long.parseLong(startTimeString)/1000;
+						if(startTime < System.currentTimeMillis()/1000) {
+							errorLog.put("startTime", "Invalid start time");
+							control = false;
+						}
+					}
 					
 					if(!Validation.onlyDigits(windowTime)) {
 						errorLog.put("windowTime", "Invalid window time");
@@ -204,7 +215,7 @@ public class CreateExam extends HttpServlet {
 						System.out.println("sectionNavigation: " + sectionNavigation);
 						Boolean result = false;
 						try {
-							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTime, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
+							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTimeString, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue, createdOn);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";
@@ -235,11 +246,11 @@ public class CreateExam extends HttpServlet {
 		
 	}
 	
-	public static boolean add(Integer adminId, String title, String description, String instructions, String difficultyLevel, Integer visibility, Integer sectionNavigation, String startTime, Integer windowTimeValue, Integer numberOfAttempts, Integer examTimer, Integer sectionTimer , Integer timeDurationValue) throws ClassNotFoundException, SQLException {
+	public static boolean add(Integer adminId, String title, String description, String instructions, String difficultyLevel, Integer visibility, Integer sectionNavigation, String startTime, Integer windowTimeValue, Integer numberOfAttempts, Integer examTimer, Integer sectionTimer , Integer timeDurationValue, String createdOn) throws ClassNotFoundException, SQLException {
 
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "Insert into Exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp())";
+		String sql = "Insert into Exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		st.setString(2, title);
@@ -257,6 +268,7 @@ public class CreateExam extends HttpServlet {
 		st.setInt(14, 0); // default inactive
 		st.setInt(15, windowTimeValue);
 		st.setInt(16, numberOfAttempts);
+		st.setString(17, createdOn);
 		Integer count = st.executeUpdate();
 		st.close();
 		con.close();

@@ -48,4 +48,79 @@ public class Exam {
 		con.close();
 		return count > 0 ? true : false;
 	}
+
+	public static boolean visibilityPrivate(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select private from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer visibility = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return visibility == 1 ? true : false;
+	}
+
+	public static boolean exists(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select COUNT(examId) from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id > 0 ? true : false;
+	}
+	public static Integer totalSectionTimerDuration(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select SUM(timeDuration) from Sections where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer time = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return time;
+	}
+	
+	public static Integer totalQuestionTimeInSectionOnQuestion(Integer sectionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select SUM(q.timeDuration) from Questions q INNER JOIN Sections s on q.sectionId = s.sectionId where s.sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer time = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return time;
+	}
+	
+	public static Integer totalQuestionTimeDuration(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select SUM(q.timeDuration) FROM Questions q INNER JOIN Sections s on q.sectionId = s.sectionId INNER JOIN Exams e on e.examId = s.examId WHERE e.examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer time = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return time;
+	}
+	
 }

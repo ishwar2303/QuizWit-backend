@@ -35,7 +35,7 @@ public class Validation {
 	
 	public static boolean timestamp(String str) {
 
-	    SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+	    SimpleDateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	    try{
 	       format.parse(str);
 	       return true;

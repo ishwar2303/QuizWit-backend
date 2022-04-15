@@ -48,6 +48,15 @@ public class UpdateExamStatus extends HttpServlet {
 						Integer examId = Integer.parseInt(examIdString);
 						Integer status = Integer.parseInt(statusString);
 						Boolean result = false;
+						/*
+						 * 
+						 *  All exam sections must contain questions means atleast 1 question
+						 *  
+						 * 
+						 * 
+						 * 
+						 * 
+						 * */
 						result = UpdateExamStatus.updateStatus(adminId, examId, status);
 						if(result)
 							success = "Status changed";

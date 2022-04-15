@@ -71,8 +71,10 @@ public class Student {
 		st.setString(1, email);
 		st.setString(2, password);
 		ResultSet rs = st.executeQuery();
-		rs.next();
-		Integer studentId = rs.getInt(1);
+		Integer studentId = 0;
+		if(rs.next()) {
+			studentId = rs.getInt(1);
+		}
 		rs.close();
 		st.close();
 		con.close();
