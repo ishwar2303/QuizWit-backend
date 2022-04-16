@@ -1,4 +1,4 @@
-package com.quizwit;
+package com.admin;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -12,11 +12,6 @@ import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONObject;
 
-import com.admin.CreateExam;
-import com.admin.Exam;
-import com.admin.Roles;
-import com.admin.Admin;
-import com.admin.UpdateExamDetails;
 import com.config.Headers;
 import com.config.Origin;
 import com.questions.Question;

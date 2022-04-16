@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.json.simple.JSONObject;
+
 import com.database.AdminDatabaseConnectivity;
 
 public class Exam {
@@ -78,6 +80,37 @@ public class Exam {
 		con.close();
 		return id > 0 ? true : false;
 	}
+
+	public static boolean isActive(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select isActive from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer status = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return status == 1 ? true : false;
+	}
+	
+	public static Integer duration(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select timeDuration from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer time = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return time;
+	}
+	
 	public static Integer totalSectionTimerDuration(Integer examId) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
@@ -122,5 +155,22 @@ public class Exam {
 		con.close();
 		return time;
 	}
+	
+
+	public static Boolean sectionNavigation(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select sectionNavigation from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer nav = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return nav == 1 ? true : false;
+	}
+	
 	
 }

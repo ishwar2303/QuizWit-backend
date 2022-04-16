@@ -4,8 +4,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 import com.database.AdminDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class Section {
 
@@ -35,4 +39,38 @@ public class Section {
 		con.close();
 		return timer == 1 ? true : false;
 	}
+	
+	public static boolean setSectionTimer(Integer sectionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select setSectionTimer from Sections where sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer timer = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return timer == 1 ? true : false;
+	}
+	
+	public static ArrayList<Integer> getAllQuestionsId(Integer sectionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select questionId from Questions where sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		
+		ArrayList<Integer> questions = new ArrayList<Integer>();
+		
+		
+		while(rs.next()) {
+			questions.add(rs.getInt(1));
+		}
+		return questions;
+	}
+	
 }

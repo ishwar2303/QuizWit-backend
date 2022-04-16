@@ -110,6 +110,21 @@ public class Question {
 		con.close();
 		return timer == 1 ? true : false;
 	}
+	
+	public static Integer duration(Integer questionId) throws SQLException, ClassNotFoundException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select timeDuration from Questions where questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer timer = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return timer;
+	}
 
 	
 	public static JSONObject fetch(Integer sectionId, Integer page) throws ClassNotFoundException, SQLException {

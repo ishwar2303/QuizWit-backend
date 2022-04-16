@@ -1,4 +1,4 @@
-package com.student;
+package com.exam;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -36,7 +36,7 @@ public class FetchExamDetails extends HttpServlet {
 		ArrayList<JSONObject> sections = new ArrayList<JSONObject>();
 		String success = "";
 		String error = "";
-		if(session.getAttribute("loggedIn") != null && (boolean) session.getAttribute("loggedIn")) { // user logged in
+		if(session.getAttribute("ExamLoggedIn") != null && (boolean) session.getAttribute("ExamLoggedIn")) { // user logged in
 			Integer examId = (Integer) session.getAttribute("examId");
 			try {
 				exam = ViewExams.fetchExam(examId);

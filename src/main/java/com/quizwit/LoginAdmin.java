@@ -49,8 +49,11 @@ public class LoginAdmin extends HttpServlet {
 		Boolean control = true;
 		JSONObject errorLog = new JSONObject();
 
+		if(session.getAttribute("ExamLoggedIn") != null && (boolean) session.getAttribute("ExamLoggedIn")) {
+			session.invalidate();
+		}
 		
-		if(session.getAttribute("loggedIn") != null && (boolean) session.getAttribute("loggedIn")) { // user logged in
+		if(session.getAttribute("AdminLoggedIn") != null && (boolean) session.getAttribute("AdminLoggedIn")) { // user logged in
 			JSONObject adminDetails = (JSONObject) session.getAttribute("details");
 			adminDetails.put("currentTime", System.currentTimeMillis()/1000);
 			json.put("details", adminDetails);
@@ -135,7 +138,7 @@ public class LoginAdmin extends HttpServlet {
 						session.setAttribute("administratorId", details.get("administratorId"));
 						// set info in session
 						details.put("loginTime", System.currentTimeMillis()/1000);
-						session.setAttribute("loggedIn", true);
+						session.setAttribute("AdminLoggedIn", true);
 						details.put("currentTime", System.currentTimeMillis()/1000);
 						session.setAttribute("details", details);
 

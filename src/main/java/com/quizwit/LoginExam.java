@@ -47,7 +47,12 @@ public class LoginExam extends HttpServlet {
 
 		Integer examId = 0;
 		
-		if(session.getAttribute("loggedIn") != null && (boolean) session.getAttribute("loggedIn")) { // user logged in
+
+		if(session.getAttribute("AdminLoggedIn") != null && (boolean) session.getAttribute("AdminLoggedIn")) {
+			session.invalidate();
+		}
+		
+		if(session.getAttribute("ExamLoggedIn") != null && (boolean) session.getAttribute("ExamLoggedIn")) { // user logged in
 			JSONObject studentDetails = (JSONObject) session.getAttribute("details");
 			json.put("details", studentDetails);
 			success = "Logged in successfully";
@@ -70,6 +75,13 @@ public class LoginExam extends HttpServlet {
 						if(!examExists) {
 							control = false;
 				 			errorLog.put("examId", "Exam doesn't exists");
+						}
+						else {
+							Boolean examActive = Exam.isActive(examId);
+							if(!examActive) {
+								control = false;
+					 			errorLog.put("examId", "Exam is not active");
+							}
 						}
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -116,7 +128,8 @@ public class LoginExam extends HttpServlet {
 						if(id != 0) {
 							JSONObject details = student.details(id);
 							details.put("examId", examId);
-							session.setAttribute("loggedIn", true);
+							session.setAttribute("studentId", id);
+							session.setAttribute("ExamLoggedIn", true);
 							session.setAttribute("examId", examId);
 							session.setAttribute("details", details);
 							json.put("details", details);
