@@ -172,5 +172,20 @@ public class Exam {
 		return nav == 1 ? true : false;
 	}
 	
+	public static String fetchTitle(Integer examId) throws ClassNotFoundException, SQLException {
+
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select title from Exams where examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		String title = rs.getString(1);
+		rs.close();
+		st.close();
+		con.close();
+		return title;
+	}
 	
 }
