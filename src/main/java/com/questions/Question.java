@@ -126,7 +126,7 @@ public class Question {
 		return timer;
 	}
 
-	
+
 	public static JSONObject fetch(Integer sectionId, Integer page) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
@@ -135,6 +135,24 @@ public class Question {
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, sectionId);
 		st.setInt(2, page);
+		ResultSet rs = st.executeQuery();
+		JSONObject json = new JSONObject();
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+		}
+		return json;
+	}
+
+	public static JSONObject fetch(Integer questionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select * from Questions where questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1,questionId);
 		ResultSet rs = st.executeQuery();
 		JSONObject json = new JSONObject();
 		if(rs.next()) {

@@ -11,7 +11,7 @@ public class SessionTimeout {
 		JSONObject adminDetailsInSession = (JSONObject) session.getAttribute("details");
 		Long currentTime = System.currentTimeMillis()/1000;
 		Long loginTime = (Long) adminDetailsInSession.get("loginTime");
-		if(currentTime - loginTime > 10) {
+		if(currentTime - loginTime > 21600) { // 6 hours
 			session.invalidate();
 			return true;
 		}

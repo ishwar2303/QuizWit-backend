@@ -6,18 +6,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.json.simple.JSONObject;
+
 import com.database.AdminDatabaseConnectivity;
 import com.database.StudentDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class Attempt {
-	public static Integer add(Integer examId, Integer studentId, Integer endTime) throws ClassNotFoundException, SQLException {
+	public static Integer add(Integer examId, Integer studentId, Integer endTime, Long examStartTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "INSERT INTO Attempts VALUES (NULL, ?, ?, 0, ?)";
+		String sql = "INSERT INTO Attempts VALUES (NULL, ?, ?, 0, ?, ?, 0)";
 		PreparedStatement st = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 		st.setInt(1, studentId);
 		st.setInt(2, examId);
 		st.setInt(3, endTime);
+		st.setLong(4, examStartTime);
 		Integer count = st.executeUpdate();
 		ResultSet rs = st.getGeneratedKeys();
 		int generatedKey = 0;
@@ -27,6 +31,19 @@ public class Attempt {
 		st.close();
 		con.close();
 		return generatedKey;
+	}
+	public static Boolean updateExamSubmitTime(Integer attemptId, Long examSubmitTime) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update Attempts SET examSubmitTime = ? WHERE attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setLong(1, examSubmitTime);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+		
 	}
 	public static Long duration(Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
@@ -47,7 +64,7 @@ public class Attempt {
 	public static Boolean addSectionNavigationControl(Integer attemptId, Integer sectionId, Integer access, Integer endTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "INSERT INTO SectionNavigation VALUES (NULL, ?, ?, ?, ?)";
+		String sql = "INSERT INTO SectionNavigation VALUES (NULL, ?, ?, ?, ?, 0)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		st.setInt(2, sectionId);
@@ -62,7 +79,7 @@ public class Attempt {
 	public static Boolean addQuestionNavigationControl(Integer attemptId, Integer questionId, Integer access, Integer endTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "INSERT INTO QuestionNavigation VALUES (NULL, ?, ?, ?, ?, 0, 0)";
+		String sql = "INSERT INTO QuestionNavigation VALUES (NULL, ?, ?, ?, ?, 0, 0, 0)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		st.setInt(2, questionId);
@@ -72,6 +89,23 @@ public class Attempt {
 		st.close();
 		con.close();
 		return count > 0 ? true : false;
+	}
+	
+	public static Boolean checkIfExamAlreadySubmitted(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select examSubmitted from Attempts where attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer val = 0;
+		if(rs.next()) {
+			val = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return val == 1 ? true : false;
 	}
 	
 	public static Integer getAttemptId(Integer examId, Integer studentId) throws ClassNotFoundException, SQLException {
@@ -108,6 +142,37 @@ public class Attempt {
 		st.close();
 		con.close();
 		return time;
+	}
+	
+	public static Boolean endExam(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update Attempts set examSubmitted = 1 where attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
+	public static JSONObject details(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		
+		String sql = "select * from Attempts where attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		JSONObject json = new JSONObject();
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+		}
+		return json;
+		
 	}
 	
 }

@@ -39,7 +39,7 @@ public class Section {
 		con.close();
 		return timer == 1 ? true : false;
 	}
-	
+
 	public static boolean setSectionTimer(Integer sectionId) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
@@ -53,6 +53,20 @@ public class Section {
 		st.close();
 		con.close();
 		return timer == 1 ? true : false;
+	}
+	public static boolean questionNavigation(Integer sectionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select questionNavigation from Sections where sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer nav = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return nav == 1 ? true : false;
 	}
 	
 	public static ArrayList<Integer> getAllQuestionsId(Integer sectionId) throws ClassNotFoundException, SQLException {

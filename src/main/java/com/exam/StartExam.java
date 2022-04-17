@@ -65,13 +65,14 @@ public class StartExam extends HttpServlet {
 						Boolean examTimer = Exam.setEntireExamTimer(examId);
 						Integer entireExamTimeDuration = 0;
 						Integer endTime = -1;
+						json.put("setExamTimer",examTimer);
 						if(examTimer) {
 							entireExamTimeDuration = Exam.duration(examId);
 							endTime = (int) ((System.currentTimeMillis()/1000) + entireExamTimeDuration);
 							json.put("entireExamTimeDuration", entireExamTimeDuration);
 						}
 
-						attemptId = Attempt.add(examId, studentId, endTime);
+						attemptId = Attempt.add(examId, studentId, endTime, System.currentTimeMillis()/1000);
 						if(attemptId > 0) {
 							session.setAttribute("attemptId", attemptId);
 							ArrayList<JSONObject> sections = ViewSections.fetchAllSections(examId);
@@ -85,7 +86,9 @@ public class StartExam extends HttpServlet {
 								Integer setQuestionTimer = Integer.parseInt((String) section.get("setQuestionTimer"));
 								Integer sectionTimeDuration = Integer.parseInt((String) section.get("timeDuration"));
 								Integer shuffleQuestions = Integer.parseInt((String) section.get("shuffleQuestions"));
-								Boolean questionNavigation = (String) section.get("questionNavigation") == "1" ? true : false;
+								System.out.println("QuestionNavigationOn: " + section.get("questionNavigation"));
+								Boolean questionNavigation = ((String) section.get("questionNavigation")).equals("1") ? true : false;
+								System.out.println(questionNavigation);
 								Integer sectionEndTime = -1;
 								
 								if(i == 0) { // first section
@@ -125,11 +128,8 @@ public class StartExam extends HttpServlet {
 									Attempt.addQuestionNavigationControl(attemptId, questionId, questionNavigationAccess, questionEndTime);
 								}
 								
-								for(Integer id : questions) {
-									System.out.println(id);
-								}
-								
 							}
+							json.put("data", LoadQuestionAfterStart.prepare(attemptId));
 							success = "Exam attempt settings done";
 						
 						}
@@ -143,13 +143,21 @@ public class StartExam extends HttpServlet {
 						else error = "Exam attempt time expired";
 					}
 				}
-				else { // attempt already started
+				else if(!Attempt.checkIfExamAlreadySubmitted(attemptId)) { 
+					// attempt already started
 					Long entireExamEndTime = Attempt.duration(attemptId);
 					Integer entireExamAvailableTime = (int) (entireExamEndTime - System.currentTimeMillis()/1000);
 					json.put("entireExamTimeDuration", entireExamAvailableTime);
 					JSONObject exam = ViewExams.fetchExam(examId);
 					json.put("examTitle", exam.get("title"));
+					Boolean examTimer = Exam.setEntireExamTimer(examId);
+					json.put("setExamTimer",examTimer);
+					json.put("data", LoadQuestionAfterStart.prepare(attemptId));
 					success = "Attempt already started";
+				}
+				else {
+					json.put("examSubmitted", true);
+					error = "You have already attempted the exam";
 				}
 			} catch(Exception e) {
 				e.printStackTrace();

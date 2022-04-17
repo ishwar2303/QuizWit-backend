@@ -38,9 +38,10 @@ public class FetchExamDetails extends HttpServlet {
 		String error = "";
 		if(session.getAttribute("ExamLoggedIn") != null && (boolean) session.getAttribute("ExamLoggedIn")) { // user logged in
 			Integer examId = (Integer) session.getAttribute("examId");
+			Integer studentId = (Integer) session.getAttribute("studentId");
 			try {
 				exam = ViewExams.fetchExam(examId);
-				success = "Exam Details fetched successfully";
+				Integer timeToStart = (int) (Long.parseLong((String) exam.get("startTime"))/1000 - System.currentTimeMillis()/1000);
 				json.put("exam", exam);
 				sections = ViewSections.fetchAllSections(examId);
 				for(int i=0; i<sections.size(); i++) {
@@ -51,11 +52,19 @@ public class FetchExamDetails extends HttpServlet {
 					section.put("timeDuration", totalTimeOnQuestionsInASection + sectionTimeDuration);
 					sections.set(i, section);
 				}
+				exam.put("timeToStart", timeToStart);
 				exam.put("sections", sections);
 				Integer totalSectionTimeDuration = Exam.totalSectionTimerDuration(examId);
 				Integer totalQuestionTimeDuration = Exam.totalQuestionTimeDuration(examId);
 				Integer examTimeDuration = Integer.parseInt((String)exam.get("timeDuration"));
 				exam.put("timeDuration", examTimeDuration + totalQuestionTimeDuration + totalSectionTimeDuration);
+				Integer attemptId = Attempt.getAttemptId(examId, studentId);
+				if(attemptId > 0) {
+					JSONObject attempt = Attempt.details(attemptId);
+					Integer examSubmitted = Integer.parseInt((String) attempt.get("examSubmitted"));
+					exam.put("examSubmitted", examSubmitted == 1 ? true : false);
+				}
+				success = "Exam Details fetched successfully";
 			} catch(Exception e) {
 				e.printStackTrace();
 				error = "Something went wrong while fetching exam details";
