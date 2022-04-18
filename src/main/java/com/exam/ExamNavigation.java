@@ -51,7 +51,7 @@ public class ExamNavigation extends HttpServlet {
 			if(fetchQuestionNavigationIdString != null && Validation.onlyDigits(fetchQuestionNavigationIdString)) {
 				try {
 					Integer fetchQuestionNavigationId = Integer.parseInt(fetchQuestionNavigationIdString);
-					JSONObject questionData = FetchQuestion.prepare(fetchQuestionNavigationId, attemptId);
+					JSONObject questionData = FetchQuestion.prepare(fetchQuestionNavigationId, attemptId, examId);
 					json.put("data", questionData);
 					success = "Question fetched successfully";
 				} catch(Exception e) {

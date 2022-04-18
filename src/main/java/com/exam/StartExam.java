@@ -129,9 +129,8 @@ public class StartExam extends HttpServlet {
 								}
 								
 							}
-							json.put("data", LoadQuestionAfterStart.prepare(attemptId));
+							json.put("data", LoadQuestionAfterStart.prepare(attemptId, examId));
 							success = "Exam attempt settings done";
-						
 						}
 						else {
 							error = "Something went wrong while preparing your attempt";
@@ -152,7 +151,7 @@ public class StartExam extends HttpServlet {
 					json.put("examTitle", exam.get("title"));
 					Boolean examTimer = Exam.setEntireExamTimer(examId);
 					json.put("setExamTimer",examTimer);
-					json.put("data", LoadQuestionAfterStart.prepare(attemptId));
+					json.put("data", LoadQuestionAfterStart.prepare(attemptId, examId));
 					success = "Attempt already started";
 				}
 				else {

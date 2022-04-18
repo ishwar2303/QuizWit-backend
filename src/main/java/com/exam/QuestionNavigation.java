@@ -70,6 +70,19 @@ public class QuestionNavigation {
 		con.close();
 		return count > 0 ? true : false;
 	}
+	
+	public static Boolean updateSubmittedTime(Integer questionNavigationId, Long time) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set submittedTime = ?, submitted = 1 where navigationId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setLong(1, time);
+		st.setInt(2, questionNavigationId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
 
 	public static Boolean timerIsSet(Integer questionNavigationId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
@@ -102,6 +115,39 @@ public class QuestionNavigation {
 		con.close();
 		return id;
 	}
+
+	public static Integer firstQuestionOfExam(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select qn.navigationId, qn.questionId, q.sectionId from QuestionNavigation qn INNER JOIN Questions q on q.questionId = qn.questionId Where attemptId = ? ORDER BY navigationId ASC LIMIT 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+	
+	public static Integer firstQuestionOfSection(Integer attemptId, Integer sectionId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select qn.navigationId, qn.questionId, q.sectionId from QuestionNavigation qn INNER JOIN Questions q on q.questionId = qn.questionId Where attemptId = ? AND q.sectionId = ? ORDER BY navigationId ASC LIMIT 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, sectionId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
 	
 	public static Integer lastQuestionOfSection(Integer attemptId, Integer sectionId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
@@ -119,6 +165,7 @@ public class QuestionNavigation {
 		con.close();
 		return id;
 	}
+	
 	
 	public static Boolean validQuestionNavigationId(Integer questionNavigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
@@ -140,7 +187,7 @@ public class QuestionNavigation {
 	public static Integer getAccessibleNavigationId(Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select navigationId from QuestionNavigation Where attemptId = ? AND access = 1 LIMIT 1";
+		String sql = "select navigationId from QuestionNavigation Where attemptId = ? AND access = 1 ORDER BY navigationId ASC LIMIT 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		ResultSet rs = st.executeQuery();
@@ -151,6 +198,57 @@ public class QuestionNavigation {
 		st.close();
 		con.close();
 		return id;
+	}
+
+	public static Boolean grantAccess(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set access = 1 where navigationId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, navigationId);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+
+	public static Boolean revokeAccessFromAllQuestionsOfExam(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "UPDATE QuestionNavigation SET access = 0 WHERE attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
+	public static Boolean revokeAccessFromAllQuestionsOfSection(Integer sectionId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "UPDATE QuestionNavigation SET access = 0 WHERE questionId in (SELECT questionId FROM Questions WHERE sectionId = ?) AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
+	public static Boolean revokeAccess(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set access = 0 where navigationId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, navigationId);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
 	}
 	
 }

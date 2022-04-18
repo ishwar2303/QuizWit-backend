@@ -55,6 +55,8 @@ public class EndExam extends HttpServlet {
 				result = Attempt.endExam(attemptId);
 			
 				if(result) {
+					SectionNavigation.revokeAccessFromAllSectionsOfExam(attemptId);
+					QuestionNavigation.revokeAccessFromAllQuestionsOfExam(attemptId);
 					Attempt.updateExamSubmitTime(attemptId, System.currentTimeMillis()/1000);
 					success = "Exam submitted successfully";
 					session.invalidate();

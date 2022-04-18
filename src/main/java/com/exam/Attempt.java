@@ -64,7 +64,7 @@ public class Attempt {
 	public static Boolean addSectionNavigationControl(Integer attemptId, Integer sectionId, Integer access, Integer endTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "INSERT INTO SectionNavigation VALUES (NULL, ?, ?, ?, ?, 0)";
+		String sql = "INSERT INTO SectionNavigation VALUES (NULL, ?, ?, ?, ?, 0, 0)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		st.setInt(2, sectionId);
@@ -79,7 +79,7 @@ public class Attempt {
 	public static Boolean addQuestionNavigationControl(Integer attemptId, Integer questionId, Integer access, Integer endTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "INSERT INTO QuestionNavigation VALUES (NULL, ?, ?, ?, ?, 0, 0, 0)";
+		String sql = "INSERT INTO QuestionNavigation VALUES (NULL, ?, ?, ?, ?, 0, 0, 0, 0)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		st.setInt(2, questionId);

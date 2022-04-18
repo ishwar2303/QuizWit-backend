@@ -96,7 +96,7 @@ public class FetchSectionAndQuestionNavigationDetails extends HttpServlet {
 	public static ArrayList<JSONObject> fetchNavigationInfoOfQuestions(Integer attemptId, Integer sectionId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select q.questionId as questionId, SUBSTRING(q.question, 1, 35) as question, score, negative, markedAsReview, attempted from QuestionNavigation qn inner join Questions q on q.questionId = qn.questionId where attemptId = ? and q.sectionId = ?";
+		String sql = "select q.questionId as questionId, navigationId, SUBSTRING(q.question, 1, 35) as question, score, negative, markedAsReview, attempted from QuestionNavigation qn inner join Questions q on q.questionId = qn.questionId where attemptId = ? and q.sectionId = ? ORDER BY qn.navigationId ASC";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		st.setInt(2, sectionId);
