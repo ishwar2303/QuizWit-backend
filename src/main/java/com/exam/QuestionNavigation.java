@@ -251,4 +251,30 @@ public class QuestionNavigation {
 		return count > 0 ? true : false;
 	}
 	
+	public static Boolean setAttempted(Integer questionId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set attempted = 1 where questionId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
+	public static Boolean setUnAttempted(Integer questionId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set attempted = 0 where questionId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		st.setInt(2, attemptId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
 }
