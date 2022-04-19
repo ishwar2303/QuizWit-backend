@@ -52,11 +52,13 @@ public class StartExam extends HttpServlet {
 			// get last attemptId from the database of the student
 			try {
 				Integer attemptId = Attempt.getAttemptId(examId, studentId); 
+				JSONObject exam = ViewExams.fetchExam(examId);
+				json.put("examTitle", exam.get("title"));
+				Long startTime = Long.parseLong((String) exam.get("startTime"))/1000;
+				Integer windowTime = Integer.parseInt((String) exam.get("windowTime"));
+				Integer numberOfAttempts = Integer.parseInt((String) exam.get("numberOfAttempts")); // number of attempts available
+				Integer givenAttempts = Attempt.count(examId, studentId); // number of attempts given
 				if(attemptId == 0) { // attempt not given
-					JSONObject exam = ViewExams.fetchExam(examId);
-					json.put("examTitle", exam.get("title"));
-					Long startTime = Long.parseLong((String) exam.get("startTime"))/1000;
-					Integer windowTime = Integer.parseInt((String) exam.get("windowTime"));
 					System.out.println("CurrentTime: " + currentTime);
 					System.out.println("StartTime: " + startTime);
 					System.out.println("WindowTime: " + (startTime + windowTime));
@@ -139,15 +141,16 @@ public class StartExam extends HttpServlet {
 					else {
 						if(currentTime < startTime)
 							error = "Exam is not started yet";
-						else error = "Exam attempt time expired";
+						else {
+							error = "Exam attempt time expired";
+						}
 					}
 				}
-				else if(!Attempt.checkIfExamAlreadySubmitted(attemptId)) { 
+				else if(!Attempt.checkIfExamAlreadySubmitted(attemptId)) { // check last attempt of the exam
 					// attempt already started
 					Long entireExamEndTime = Attempt.duration(attemptId);
 					Integer entireExamAvailableTime = (int) (entireExamEndTime - System.currentTimeMillis()/1000);
 					json.put("entireExamTimeDuration", entireExamAvailableTime);
-					JSONObject exam = ViewExams.fetchExam(examId);
 					json.put("examTitle", exam.get("title"));
 					Boolean examTimer = Exam.setEntireExamTimer(examId);
 					json.put("setExamTimer",examTimer);

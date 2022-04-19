@@ -43,13 +43,15 @@ public class FetchQuestion {
 				if((Question.setQuestionTimer(sectionId) && questionTimer > 0) || !Question.setQuestionTimer(sectionId)) {
 
 					question.put("setQuestionTimer", Question.setQuestionTimer(sectionId));
-					data.put("question", question);
 					
 		
 					if(categoryId == 1 || categoryId == 2) { // MCQ
 						ArrayList<JSONObject> mcqOptions = MultipleChoiceQuestionOption.fetch(questionId);
-						data.put("mcqOptions", mcqOptions);
+						question.put("mcqOptions", mcqOptions);
 					}
+					
+
+					data.put("question", question);
 
 				}
 				else {

@@ -57,9 +57,11 @@ public class SaveResponse extends HttpServlet {
 					if(QuestionNavigation.validQuestionNavigationId(saveResponseQuestionNavigationId, attemptId)) {
 						Integer questionId = QuestionNavigation.getQuestionId(saveResponseQuestionNavigationId, attemptId);
 						JSONObject question = Question.fetch(questionId);
+						Integer categoryId = Integer.parseInt((String) question.get("categoryId"));
 						Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
 
-						// save response
+						// save response of current question
+						SaveAnswer.save(request, attemptId, questionId, categoryId);
 						
 						Boolean questionNavigation = Section.questionNavigation(sectionId);
 						if(!questionNavigation) {

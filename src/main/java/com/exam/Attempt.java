@@ -94,7 +94,7 @@ public class Attempt {
 	public static Boolean checkIfExamAlreadySubmitted(Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select examSubmitted from Attempts where attemptId = ?";
+		String sql = "select examSubmitted from Attempts where attemptId = ? ORDER BY attemptId DESC LIMIT 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, attemptId);
 		ResultSet rs = st.executeQuery();
@@ -111,7 +111,7 @@ public class Attempt {
 	public static Integer getAttemptId(Integer examId, Integer studentId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select attemptId from Attempts where examId = ? and studentId = ?";
+		String sql = "select attemptId from Attempts where examId = ? and studentId = ? and examSubmitted = 0 ORDER BY attemptId DESC LIMIT 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, examId);
 		st.setInt(2, studentId);
@@ -173,6 +173,25 @@ public class Attempt {
 		}
 		return json;
 		
+	}
+	
+	public static Integer count(Integer examId, Integer studentId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select COUNT(attemptId) from Attempts where examId = ? and studentId = ? ORDER BY attemptId DESC LIMIT 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		st.setInt(2, studentId);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
 	}
 	
 }

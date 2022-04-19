@@ -31,6 +31,23 @@ public class MultipleChoiceQuestionOption {
 		con.close();
 		return generatedKey;
 	}
+	
+	public static Boolean validOptionId(Integer questionId, Integer optionId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "SELECT COUNT(questionId) FROM McqOptions WHERE questionId = ? AND optionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		st.setInt(2, optionId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id= rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id != 0 ? true : false;
+	}
 
 	public static boolean update(Integer optionId, String option) throws SQLException, ClassNotFoundException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
