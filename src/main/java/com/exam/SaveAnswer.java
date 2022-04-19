@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.questions.MultipleChoiceQuestionOption;
+import com.util.Validation;
+
 /**
  * Servlet implementation class SaveAnswer
  */
@@ -43,13 +46,45 @@ public class SaveAnswer extends HttpServlet {
 						StudentTrueFalseAnswers.delete(attemptId, questionId);
 				}
 			}
-			
+
 			if(categoryId == 1) {
 				if(clear == null) {
-					
+					String option = request.getParameter("options");
+					if(option != null && Validation.onlyDigits(option)) {
+						Integer optionId = Integer.parseInt(option);
+						if(MultipleChoiceQuestionOption.validOptionId(questionId, optionId)) {
+							StudentMcqAnswers.delete(attemptId, questionId);
+							StudentMcqAnswers.add(attemptId, questionId, optionId);
+						}
+					}
 				}
-				else {
-					
+			}
+			if(categoryId == 2) {
+				if(clear == null) {
+					String optionsString = request.getParameter("options");
+					if(optionsString != null) {
+						String[] options = optionsString.split(",");
+						Boolean deleteOptionControl = true;
+						for(int i=0; i<options.length; i++) {
+							if(Validation.onlyDigits(options[i])) {
+								Integer optionId = Integer.parseInt(options[i]);
+								if(MultipleChoiceQuestionOption.validOptionId(questionId, optionId)) {
+									if(deleteOptionControl) {
+										StudentMcqAnswers.delete(attemptId, questionId);
+										deleteOptionControl = false;
+									}
+									StudentMcqAnswers.add(attemptId, questionId, optionId);
+								}
+							}
+						}
+						
+					}
+				}
+			}
+			
+			if(categoryId == 1 || categoryId == 2) {
+				if(clear != null) {
+					StudentMcqAnswers.delete(attemptId, questionId);
 				}
 			}
 			
