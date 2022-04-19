@@ -67,6 +67,15 @@ public class FetchSectionAndQuestionNavigationDetails extends HttpServlet {
 					tempSection.put("title", section.get("title"));
 					Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
 					ArrayList<JSONObject> questions = FetchSectionAndQuestionNavigationDetails.fetchNavigationInfoOfQuestions(attemptId, sectionId);
+					for(int j=0; j<questions.size(); j++) {
+						Integer questionId = Integer.parseInt((String) questions.get(j).get("questionId"));
+						Integer navigationId = QuestionNavigation.getNavigationId(questionId, attemptId);
+
+						questions.get(j).put("navigationId", navigationId);
+						questions.get(j).put("attempted", QuestionNavigation.attempted(navigationId, attemptId));
+						questions.get(j).put("unattempted", QuestionNavigation.unAttempted(navigationId, attemptId));
+						questions.get(j).put("markedAsReview", QuestionNavigation.markedAsReview(navigationId, attemptId));
+					}
 					tempSection.put("questions", questions);
 					Integer duration = (int) (Attempt.getSectionEndTime(sectionId, attemptId) - System.currentTimeMillis()/1000);
 					tempSection.put("duration", duration);

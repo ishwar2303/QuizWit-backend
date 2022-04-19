@@ -9,6 +9,23 @@ import java.sql.Statement;
 import com.database.StudentDatabaseConnectivity;
 
 public class StudentTrueFalseAnswers {
+	
+	public static String selected(Integer attemptId, Integer questionId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select answer FROM StudentTrueFalseAnswers WHERE attemptId = ? AND questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, questionId);
+		ResultSet rs = st.executeQuery();
+		String answer = "";
+		if(rs.next())
+			answer = rs.getString(1);
+		rs.close();
+		st.close();
+		con.close();
+		return answer;
+	}
 	public static Boolean exists(Integer attemptId, Integer questionId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();

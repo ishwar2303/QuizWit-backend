@@ -24,6 +24,24 @@ public class QuestionNavigation {
 		con.close();
 		return val == 1 ? true : false;
 	}
+	
+	public static Integer getNavigationId(Integer questionId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select qn.navigationId from QuestionNavigation qn where questionId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, questionId);
+		st.setInt(2, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer navigationId = 0;
+		if(rs.next())
+			navigationId = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return navigationId;
+	}
+	
 	public static Integer getQuestionId(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
@@ -275,6 +293,120 @@ public class QuestionNavigation {
 		st.close();
 		con.close();
 		return count > 0 ? true : false;
+	}
+	
+
+	public static Integer totalQuestionsCount(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT COUNT(attemptId) FROM QuestionNavigation WHERE attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+
+	public static Integer attemptedQuestionsCount(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT COUNT(attemptId) FROM QuestionNavigation WHERE attemptId = ? AND attempted = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+	
+	public static Integer unattemptedQuestionsCount(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT COUNT(attemptId) FROM QuestionNavigation WHERE attemptId = ? AND attempted = 0";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+	
+	public static Integer makredAsReviewQuestionsCount(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT COUNT(attemptId) FROM QuestionNavigation WHERE attemptId = ? AND markedAsReview = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+
+	public static Boolean attempted(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT attemptId FROM QuestionNavigation WHERE attemptId = ? AND navigationId = ? AND attempted = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, navigationId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id != 0 ? true : false;
+	}
+	public static Boolean unAttempted(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT attemptId FROM QuestionNavigation WHERE attemptId = ? AND navigationId = ? AND attempted = 0";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, navigationId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id != 0 ? true : false;
+	}
+	public static Boolean markedAsReview(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT attemptId FROM QuestionNavigation WHERE attemptId = ? AND navigationId = ? AND markedAsReview = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, navigationId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next())
+			id = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id != 0 ? true : false;
 	}
 	
 }

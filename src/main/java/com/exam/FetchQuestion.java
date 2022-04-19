@@ -40,6 +40,9 @@ public class FetchQuestion {
 				Integer serialNo = questionNavigationId - firstNavigationIdInSection + 1;
 				question.put("serialNo", serialNo);
 				question.put("navigationId", questionNavigationId);
+				question.put("attempted", QuestionNavigation.attempted(questionNavigationId, attemptId));
+				question.put("unattempted", QuestionNavigation.unAttempted(questionNavigationId, attemptId));
+				question.put("markedAsReview", QuestionNavigation.markedAsReview(questionNavigationId, attemptId));
 				if((Question.setQuestionTimer(sectionId) && questionTimer > 0) || !Question.setQuestionTimer(sectionId)) {
 
 					question.put("setQuestionTimer", Question.setQuestionTimer(sectionId));
@@ -47,12 +50,22 @@ public class FetchQuestion {
 		
 					if(categoryId == 1 || categoryId == 2) { // MCQ
 						ArrayList<JSONObject> mcqOptions = MultipleChoiceQuestionOption.fetch(questionId);
+						for(int i=0; i<mcqOptions.size(); i++) {
+							Integer optionId = Integer.parseInt((String) mcqOptions.get(i).get("optionId"));
+							mcqOptions.get(i).put("selected", StudentMcqAnswers.selected(attemptId, questionId, optionId));
+						}
 						question.put("mcqOptions", mcqOptions);
+					}
+					else if(categoryId == 3) { // True or False
+						String trueFalseAnswer = "";
+						if(StudentTrueFalseAnswers.exists(attemptId, questionId)) {
+							trueFalseAnswer = StudentTrueFalseAnswers.selected(attemptId, questionId);
+						}
+						question.put("trueFalseAnswer", trueFalseAnswer);
 					}
 					
 
 					data.put("question", question);
-
 				}
 				else {
 					JSONObject emptyQuestion = new JSONObject();
@@ -61,6 +74,7 @@ public class FetchQuestion {
 				}
 				
 				// configuration settings
+				
 				
 				data.put("sectionNavigation", Exam.sectionNavigation(examId));
 				

@@ -90,6 +90,7 @@ public class SaveAnswer extends HttpServlet {
 			if(categoryId == 1 || categoryId == 2) {
 				if(clear != null) {
 					StudentMcqAnswers.delete(attemptId, questionId);
+					QuestionNavigation.setUnAttempted(questionId, attemptId);
 				}
 			}
 			
