@@ -38,12 +38,15 @@ public class SaveAnswer extends HttpServlet {
 							else {
 								StudentTrueFalseAnswers.update(attemptId, questionId, trueFalseAnswer);
 							}
+							QuestionNavigation.setAttempted(questionId, attemptId);
 						}
 					}
 				}
 				else {
-					if(StudentTrueFalseAnswers.exists(attemptId, questionId))
+					if(StudentTrueFalseAnswers.exists(attemptId, questionId)) {
 						StudentTrueFalseAnswers.delete(attemptId, questionId);
+						QuestionNavigation.setUnAttempted(questionId, attemptId);
+					}
 				}
 			}
 
@@ -55,6 +58,7 @@ public class SaveAnswer extends HttpServlet {
 						if(MultipleChoiceQuestionOption.validOptionId(questionId, optionId)) {
 							StudentMcqAnswers.delete(attemptId, questionId);
 							StudentMcqAnswers.add(attemptId, questionId, optionId);
+							QuestionNavigation.setAttempted(questionId, attemptId);
 						}
 					}
 				}
@@ -74,6 +78,7 @@ public class SaveAnswer extends HttpServlet {
 										deleteOptionControl = false;
 									}
 									StudentMcqAnswers.add(attemptId, questionId, optionId);
+									QuestionNavigation.setAttempted(questionId, attemptId);
 								}
 							}
 						}
