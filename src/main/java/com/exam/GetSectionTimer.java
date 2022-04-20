@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONObject;
 
+import com.admin.Section;
 import com.config.Headers;
 import com.config.Origin;
 import com.student.Student;
@@ -48,8 +49,10 @@ public class GetSectionTimer extends HttpServlet {
 			try {
 				JSONObject sectionTimer = SectionNavigation.getTimer(attemptId);
 				if((Boolean) sectionTimer.get("fetched")) {
-					json.put("setSectionTimer", true);
-					json.put("navigationId", Integer.parseInt((String) sectionTimer.get("navigationId")));
+					Integer navigationId = Integer.parseInt((String) sectionTimer.get("navigationId"));
+					json.put("navigationId", navigationId);
+					Integer sectionId = SectionNavigation.getSectionId(navigationId, attemptId);
+					json.put("setSectionTimer", Section.setSectionTimer(sectionId));
 					Integer timeDuration = (int) (Long.parseLong((String) sectionTimer.get("endTime")) - System.currentTimeMillis()/1000);
 					json.put("timeDuration", timeDuration);
 				}
