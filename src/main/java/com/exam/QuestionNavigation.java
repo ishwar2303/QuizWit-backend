@@ -4,9 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+
+import org.json.simple.JSONObject;
 
 import com.database.AdminDatabaseConnectivity;
 import com.database.StudentDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class QuestionNavigation {
 	public static Boolean access(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
@@ -407,6 +411,29 @@ public class QuestionNavigation {
 		st.close();
 		con.close();
 		return id != 0 ? true : false;
+	}
+	
+	public static ArrayList<JSONObject> questionNavigationStatus(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "SELECT navigationId, attempted, markedAsReview FROM QuestionNavigation WHERE attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		ArrayList<JSONObject> questions = new ArrayList<JSONObject>();
+		while(rs.next()) {
+			JSONObject json = new JSONObject();
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+	        questions.add(json);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return questions;
+		
 	}
 	
 }
