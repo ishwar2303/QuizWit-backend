@@ -124,7 +124,7 @@ public class StartExam extends HttpServlet {
 									
 									questionNavigationAccess = questionNavigation ? 1 : 0;
 									
-									if(i == 0 && j == 0)
+									if(j == 0)
 										questionNavigationAccess = 1;
 									
 									Attempt.addQuestionNavigationControl(attemptId, questionId, questionNavigationAccess, questionEndTime);

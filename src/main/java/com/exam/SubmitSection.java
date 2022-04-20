@@ -71,14 +71,16 @@ public class SubmitSection extends HttpServlet {
 							System.out.println("Next section to fetch: " + nextSectionToFetchId);
 							if(SectionNavigation.validSectionNavigationId(nextSectionToFetchId, attemptId) && !SectionNavigation.timerIsSet(nextSectionToFetchId)) {
 								SectionNavigation.grantAccess(nextSectionToFetchId, attemptId);
-								if(Section.setSectionTimer(sectionId)) {
-									JSONObject section = ViewSections.fetchSection(sectionId);
+								Integer nextSectionSectionId = SectionNavigation.getSectionId(nextSectionToFetchId, attemptId);
+								if(Section.setSectionTimer(nextSectionSectionId)) {
+									JSONObject section = ViewSections.fetchSection(nextSectionSectionId);
 									Integer timeDuration = Integer.parseInt((String) section.get("timeDuration"));
-									SectionNavigation.updateEndTime(sectionNavigationId, System.currentTimeMillis()/1000 + timeDuration);
+									SectionNavigation.updateEndTime(nextSectionToFetchId, System.currentTimeMillis()/1000 + timeDuration);
 								}
+
 							}
 							else {
-								System.out.println("In else section");
+								json.put("endExam", true);
 							}
 						}
 						

@@ -80,6 +80,7 @@ public class FetchSectionAndQuestionNavigationDetails extends HttpServlet {
 					Integer duration = (int) (Attempt.getSectionEndTime(sectionId, attemptId) - System.currentTimeMillis()/1000);
 					tempSection.put("duration", duration);
 					tempSection.put("sectionId", sectionId);
+					tempSection.put("sectionNavigationId", SectionNavigation.getNavigationId(sectionId, attemptId));
 					navigationData.add(tempSection);
 				}
 				json.put("sections", navigationData);

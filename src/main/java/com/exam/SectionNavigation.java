@@ -5,8 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.json.simple.JSONObject;
+
 import com.database.AdminDatabaseConnectivity;
 import com.database.StudentDatabaseConnectivity;
+import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class SectionNavigation {
 
@@ -86,7 +89,7 @@ public class SectionNavigation {
 		con.close();
 		return id != 0 ? true : false;
 	}
-	
+
 	
 	public static Integer getNavigationId(Integer sectionId, Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
@@ -94,6 +97,24 @@ public class SectionNavigation {
 		String sql = "select navigationId from SectionNavigation where sectionId = ? AND attemptId = ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, sectionId);
+		st.setInt(2, attemptId);
+		ResultSet rs = st.executeQuery();
+		
+		Integer id = 0;
+		if(rs.next())
+			id= rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
+	
+	public static Integer getSectionId(Integer sectionNavigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select sectionId from SectionNavigation where navigationId = ? AND attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionNavigationId);
 		st.setInt(2, attemptId);
 		ResultSet rs = st.executeQuery();
 		
@@ -147,6 +168,28 @@ public class SectionNavigation {
 		return count > 0 ? true : false;
 	}
 	
+	public static JSONObject getTimer(Integer attemptId) throws ClassNotFoundException, SQLException {
+
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select navigationId, endTime from SectionNavigation sn where attemptId = ? AND access = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		JSONObject json = new JSONObject();
+		if(rs.next()) {
+			ResultSetMetaData rsmd = (ResultSetMetaData) rs.getMetaData();
+	        for (int j = 1; j <= rsmd.getColumnCount(); j++) {
+	            json.put(rs.getMetaData().getColumnLabel(j), rs.getString(j));
+	        }
+	        json.put("fetched", true);
+		}
+		else json.put("fetched", false);
+		rs.close();
+		st.close();
+		con.close();
+		return json;
+	}
 
 	
 }
