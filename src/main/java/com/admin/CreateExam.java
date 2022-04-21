@@ -143,7 +143,7 @@ public class CreateExam extends HttpServlet {
 					}
 					
 					if(endTimeString.equals("")) {
-						errorLog.put("endTime", "end time required");
+						errorLog.put("endTime", "End time required");
 						control = false;
 					}
 					else if(!Validation.onlyDigits(endTimeString)) {
@@ -154,7 +154,7 @@ public class CreateExam extends HttpServlet {
 						endTime = Long.parseLong(endTimeString)/1000;
 						int obj = Long.compare(startTime, endTime);
 						if(obj > 0) {
-							errorLog.put("endTime", "end time must be greater than start times");
+							errorLog.put("endTime", "End time must be greater than start time");
 							control = false;
 						}
 					}
@@ -215,7 +215,7 @@ public class CreateExam extends HttpServlet {
 										long timeDurationLong = timeDurationValue;
 										int obj2 = Long.compare(timeDurationLong, timeDiffernce);
 										if(obj2 > 0) {
-											errorLog.put("endTime", "end time must be greater than total time");
+											errorLog.put("endTime", "End time must be greater than total time duration of exam");
 											control = false;
 										}
 									}

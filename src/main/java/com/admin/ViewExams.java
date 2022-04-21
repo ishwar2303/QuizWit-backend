@@ -48,6 +48,8 @@ public class ViewExams extends HttpServlet {
 				Integer examId = Integer.parseInt(examIdString);
 				exam = ViewExams.fetchExam(adminId, examId);
 				success = "Details fetched successfully";
+				Integer totalTimeDurationOfExam = Exam.duration(examId) + Exam.totalSectionTimerDuration(examId) + Exam.totalQuestionTimeDuration(examId);
+				exam.put("totalTimeDurationOfExam", totalTimeDurationOfExam);
 				json.put("examDetails", exam);
 			} catch(Exception e) {
 				e.printStackTrace();
@@ -74,6 +76,11 @@ public class ViewExams extends HttpServlet {
 				if(page > totalPages || page < 1)
 					page = 1;
 				examDetails = ViewExams.fetchAllExams(adminId, limit, offset);
+				for(int i=0; i<examDetails.size(); i++) {
+					Integer examId = Integer.parseInt((String) examDetails.get(i).get("examId"));
+					Integer totalTimeDurationOfExam = Exam.duration(examId) + Exam.totalSectionTimerDuration(examId) + Exam.totalQuestionTimeDuration(examId);
+					examDetails.get(i).put("totalTimeDurationOfExam", totalTimeDurationOfExam);
+				}
 				success = "Details fetched successfully";
 				json.put("examDetails", examDetails);
 				json.put("totalPages", totalPages);

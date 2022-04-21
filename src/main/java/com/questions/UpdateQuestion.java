@@ -14,7 +14,9 @@ import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONObject;
 
+import com.admin.Exam;
 import com.admin.Roles;
+import com.admin.ViewSections;
 import com.answers.MultipleChoiceAnswer;
 import com.answers.TrueFalseAnswer;
 import com.config.Headers;
@@ -258,6 +260,11 @@ public class UpdateQuestion extends HttpServlet {
 					if(control) {
 
 						Boolean result = Question.update(questionId, question, score, negative, explanation, timeDuration);
+						JSONObject questionJSON = Question.fetch(questionId);
+						Integer sectionId = Integer.parseInt((String) questionJSON.get("sectionId"));
+						JSONObject section = ViewSections.fetchSection(sectionId);
+						Integer examId = Integer.parseInt((String) section.get("examId"));
+						Exam.inActiveExam(examId);
 						if(result) {
 							if(categoryId == 1 || categoryId == 2) {
 								Boolean oldOptionsDeleted = MultipleChoiceQuestionOption.deleteAllOptions(questionId);

@@ -115,7 +115,14 @@ public class FetchQuestion {
 			}
 		}
 		else {
-			data.put("error", "Question can't be accessed");
+			Integer questionId = QuestionNavigation.getQuestionId(questionNavigationId, attemptId);
+			JSONObject question = Question.fetch(questionId);
+			Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
+			Integer sectionNavigationId = SectionNavigation.getNavigationId(sectionId, attemptId);
+			if(!SectionNavigation.access(sectionNavigationId, attemptId)) {
+				data.put("error", "Section can't be accessed");
+			}
+			else data.put("error", "Question can't be accessed");
 		}
 		
 		return data;

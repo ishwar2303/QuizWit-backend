@@ -188,4 +188,17 @@ public class Exam {
 		return title;
 	}
 	
+
+	public static boolean inActiveExam(Integer examId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "Update Exams set isActive = 0 WHERE examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
 }

@@ -14,6 +14,7 @@ import org.json.simple.JSONObject;
 
 import com.admin.Exam;
 import com.admin.Section;
+import com.admin.ViewExams;
 import com.admin.ViewSections;
 import com.config.Headers;
 import com.config.Origin;
@@ -55,40 +56,49 @@ public class SubmitSection extends HttpServlet {
 			String saveResponseQuestionNavigationIdString = request.getParameter("saveResponseQuestionNavigationId");
 			if(saveResponseQuestionNavigationIdString != null && Validation.onlyDigits(saveResponseQuestionNavigationIdString)) {
 				try {
-					Integer saveResponseQuestionNavigationId = Integer.parseInt(saveResponseQuestionNavigationIdString);
-					if(QuestionNavigation.validQuestionNavigationId(saveResponseQuestionNavigationId, attemptId)) {
-						Integer questionId = QuestionNavigation.getQuestionId(saveResponseQuestionNavigationId, attemptId);
-						JSONObject question = Question.fetch(questionId);
-						Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
-						// save response
-						Integer sectionNavigationId = SectionNavigation.getNavigationId(sectionId, attemptId);
-						Boolean sectionNavigation = Exam.sectionNavigation(examId);
-						if(!sectionNavigation) { // section navigation is false we need to revoke access of this section
-							SectionNavigation.revokeAccess(sectionId, attemptId);
-							SectionNavigation.updateSubmittedTime(sectionId, attemptId, System.currentTimeMillis()/1000);
-							QuestionNavigation.revokeAccessFromAllQuestionsOfSection(sectionId, attemptId);
-							Integer nextSectionToFetchId = sectionNavigationId + 1;
-							System.out.println("Next section to fetch: " + nextSectionToFetchId);
-							if(SectionNavigation.validSectionNavigationId(nextSectionToFetchId, attemptId) && !SectionNavigation.timerIsSet(nextSectionToFetchId)) {
-								SectionNavigation.grantAccess(nextSectionToFetchId, attemptId);
-								Integer nextSectionSectionId = SectionNavigation.getSectionId(nextSectionToFetchId, attemptId);
-								if(Section.setSectionTimer(nextSectionSectionId)) {
-									JSONObject section = ViewSections.fetchSection(nextSectionSectionId);
-									Integer timeDuration = Integer.parseInt((String) section.get("timeDuration"));
-									SectionNavigation.updateEndTime(nextSectionToFetchId, System.currentTimeMillis()/1000 + timeDuration);
-								}
+					JSONObject exam = ViewExams.fetchExam(examId);
+					json.put("examTitle", exam.get("title"));
+					Long examEndTime = Long.parseLong((String) exam.get("endTime"))/1000;
+					if(currentTime < examEndTime) {
 
+						Integer saveResponseQuestionNavigationId = Integer.parseInt(saveResponseQuestionNavigationIdString);
+						if(QuestionNavigation.validQuestionNavigationId(saveResponseQuestionNavigationId, attemptId)) {
+							Integer questionId = QuestionNavigation.getQuestionId(saveResponseQuestionNavigationId, attemptId);
+							JSONObject question = Question.fetch(questionId);
+							Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
+							// save response
+							Integer sectionNavigationId = SectionNavigation.getNavigationId(sectionId, attemptId);
+							Boolean sectionNavigation = Exam.sectionNavigation(examId);
+							if(!sectionNavigation) { // section navigation is false we need to revoke access of this section
+								SectionNavigation.revokeAccess(sectionId, attemptId);
+								SectionNavigation.updateSubmittedTime(sectionId, attemptId, System.currentTimeMillis()/1000);
+								QuestionNavigation.revokeAccessFromAllQuestionsOfSection(sectionId, attemptId);
+								Integer nextSectionToFetchId = sectionNavigationId + 1;
+								System.out.println("Next section to fetch: " + nextSectionToFetchId);
+								if(SectionNavigation.validSectionNavigationId(nextSectionToFetchId, attemptId) && !SectionNavigation.timerIsSet(nextSectionToFetchId)) {
+									SectionNavigation.grantAccess(nextSectionToFetchId, attemptId);
+									Integer nextSectionSectionId = SectionNavigation.getSectionId(nextSectionToFetchId, attemptId);
+									if(Section.setSectionTimer(nextSectionSectionId)) {
+										JSONObject section = ViewSections.fetchSection(nextSectionSectionId);
+										Integer timeDuration = Integer.parseInt((String) section.get("timeDuration"));
+										SectionNavigation.updateEndTime(nextSectionToFetchId, System.currentTimeMillis()/1000 + timeDuration);
+									}
+
+								}
+								else {
+									json.put("endExam", true);
+								}
 							}
-							else {
-								json.put("endExam", true);
-							}
+							
+							success = "Section navigation settings updated";
+							// question Navigation true
 						}
-						
-						success = "Section navigation settings updated";
-						// question Navigation true
+						else {
+							error = "Invalid response question id";
+						}
 					}
 					else {
-						error = "Invalid response question id";
+						json.put("endExam", true);
 					}
 				} catch(Exception e) {
 					error = "Something went wrong while setting section navigation info";

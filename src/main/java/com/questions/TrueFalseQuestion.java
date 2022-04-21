@@ -13,8 +13,10 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.admin.AddSection;
+import com.admin.Exam;
 import com.admin.Roles;
 import com.admin.Section;
+import com.admin.ViewSections;
 import com.answers.TrueFalseAnswer;
 import com.config.Headers;
 import com.config.Origin;
@@ -165,6 +167,9 @@ public class TrueFalseQuestion extends HttpServlet {
 						Integer questionId = Question.add(sectionId, categoryId, questionString, score, negativeMarking, explanationString, timeDuration);
 						if(questionId > 0) {
 							Boolean result = TrueFalseAnswer.add(questionId, answer);
+							JSONObject section = ViewSections.fetchSection(sectionId);
+							Integer examId = Integer.parseInt((String) section.get("examId"));
+							Exam.inActiveExam(examId);
 							if(result) {
 								success = "Question added successfully";
 							}

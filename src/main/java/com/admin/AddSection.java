@@ -177,6 +177,7 @@ public class AddSection extends HttpServlet {
 						Boolean result = false;
 						try {
 							result =  AddSection.add(examId, title, description, questionNavigationValue, sectionTimer, questionTimer, timeDurationValue, shuffleQuestions);
+							Exam.inActiveExam(examId);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";

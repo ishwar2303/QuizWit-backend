@@ -15,7 +15,9 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.admin.AddSection;
+import com.admin.Exam;
 import com.admin.Roles;
+import com.admin.ViewSections;
 import com.answers.MultipleChoiceAnswer;
 import com.config.Headers;
 import com.config.Origin;
@@ -194,6 +196,9 @@ public class MultipleChoiceQuestionMultipleCorrect extends HttpServlet {
 					if(control) {
 						System.out.println("Everything is fine");
 						Integer questionId = Question.add(sectionId, categoryId, questionString, score, negativeMarking, explanationString, timeDuration);
+						JSONObject section = ViewSections.fetchSection(sectionId);
+						Integer examId = Integer.parseInt((String) section.get("examId"));
+						Exam.inActiveExam(examId);
 						if(questionId > 0) {
 							// insert mcq options
 							Boolean result = true;

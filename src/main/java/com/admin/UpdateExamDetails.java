@@ -155,7 +155,7 @@ public class UpdateExamDetails extends HttpServlet {
 					}
 					
 					if(endTimeString.equals("")) {
-						errorLog.put("endTime", "end time required");
+						errorLog.put("endTime", "End time required");
 						control = false;
 					}
 					else if(!Validation.onlyDigits(endTimeString)) {
@@ -166,7 +166,7 @@ public class UpdateExamDetails extends HttpServlet {
 						endTime = Long.parseLong(endTimeString)/1000;
 						int obj = Long.compare(startTime, endTime);
 						if(obj > 0) {
-							errorLog.put("endTime", "end time must be greater than start times");
+							errorLog.put("endTime", "End time must be greater than start time");
 							control = false;
 						}
 					}
@@ -243,7 +243,7 @@ public class UpdateExamDetails extends HttpServlet {
 								long timeDiffernce = Math.subtractExact(endTime, startTime);
 								long obj2 = Long.compare(totalTime, timeDiffernce);
 								if(obj2 > 0) {
-									errorLog.put("endTime", "end time must be greater than total time");
+									errorLog.put("endTime", "End time must be greater than total time duration of the exam");
 									control = false;
 								}
 							}
@@ -262,6 +262,7 @@ public class UpdateExamDetails extends HttpServlet {
 								Exam.offSectionTimer(examId);
 							}
 							result =  UpdateExamDetails.update(examId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTimeString, endTimeString, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue);
+							
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";

@@ -66,6 +66,7 @@ public class FetchSectionAndQuestionNavigationDetails extends HttpServlet {
 					JSONObject section = sections.get(i);
 					tempSection.put("title", section.get("title"));
 					Integer sectionId = Integer.parseInt((String) section.get("sectionId"));
+					Boolean questionNavigaiton = ((String) section.get("questionNavigation")).equals("1") ? true : false;
 					ArrayList<JSONObject> questions = FetchSectionAndQuestionNavigationDetails.fetchNavigationInfoOfQuestions(attemptId, sectionId);
 					for(int j=0; j<questions.size(); j++) {
 						Integer questionId = Integer.parseInt((String) questions.get(j).get("questionId"));
@@ -81,6 +82,7 @@ public class FetchSectionAndQuestionNavigationDetails extends HttpServlet {
 					tempSection.put("duration", duration);
 					tempSection.put("sectionId", sectionId);
 					tempSection.put("sectionNavigationId", SectionNavigation.getNavigationId(sectionId, attemptId));
+					tempSection.put("questionNavigation", questionNavigaiton);
 					navigationData.add(tempSection);
 				}
 				json.put("sections", navigationData);

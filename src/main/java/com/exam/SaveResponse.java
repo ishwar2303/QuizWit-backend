@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.admin.Section;
+import com.admin.ViewExams;
 import com.config.Headers;
 import com.config.Origin;
 import com.questions.Question;
@@ -53,40 +54,50 @@ public class SaveResponse extends HttpServlet {
 			String saveResponseQuestionNavigationIdString = request.getParameter("saveResponseQuestionNavigationId");
 			if(saveResponseQuestionNavigationIdString != null && Validation.onlyDigits(saveResponseQuestionNavigationIdString)) {
 				try {
-					Integer saveResponseQuestionNavigationId = Integer.parseInt(saveResponseQuestionNavigationIdString);
-					if(QuestionNavigation.validQuestionNavigationId(saveResponseQuestionNavigationId, attemptId)) {
-						Integer questionId = QuestionNavigation.getQuestionId(saveResponseQuestionNavigationId, attemptId);
-						JSONObject question = Question.fetch(questionId);
-						Integer categoryId = Integer.parseInt((String) question.get("categoryId"));
-						Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
 
-						// save response of current question
-						SaveAnswer.save(request, attemptId, questionId, categoryId);
-						
-						Boolean questionNavigation = Section.questionNavigation(sectionId);
-						if(!questionNavigation) {
-							QuestionNavigation.revokeAccess(saveResponseQuestionNavigationId, attemptId);
-						}
-						
-						
-						if(Question.setQuestionTimer(sectionId)) {
-							QuestionNavigation.updateSubmittedTime(saveResponseQuestionNavigationId, System.currentTimeMillis()/1000);
-						}
+					JSONObject exam = ViewExams.fetchExam(examId);
+					json.put("examTitle", exam.get("title"));
+					Long examEndTime = Long.parseLong((String) exam.get("endTime"))/1000;
+					if(currentTime < examEndTime) {
+						Integer saveResponseQuestionNavigationId = Integer.parseInt(saveResponseQuestionNavigationIdString);
+						if(QuestionNavigation.validQuestionNavigationId(saveResponseQuestionNavigationId, attemptId)) {
+							Integer questionId = QuestionNavigation.getQuestionId(saveResponseQuestionNavigationId, attemptId);
+							JSONObject question = Question.fetch(questionId);
+							Integer categoryId = Integer.parseInt((String) question.get("categoryId"));
+							Integer sectionId = Integer.parseInt((String) question.get("sectionId"));
 
-						Integer nextQuestionToFetchId = saveResponseQuestionNavigationId + 1;
-						Integer nextQuestionId = QuestionNavigation.getQuestionId(nextQuestionToFetchId, attemptId);
-						JSONObject nextQuestion = Question.fetch(nextQuestionId);
-						Integer nextSectionId = Integer.parseInt((String) nextQuestion.get("sectionId"));
-						Integer nextSectionNavigationId = SectionNavigation.getNavigationId(nextSectionId, attemptId);
-						if(SectionNavigation.access(nextSectionNavigationId, attemptId)) { // section can be accessed
-							if(QuestionNavigation.validQuestionNavigationId(nextQuestionToFetchId, attemptId)) {
-								QuestionNavigation.grantAccess(nextQuestionToFetchId, attemptId);
+							// save response of current question
+							SaveAnswer.save(request, attemptId, questionId, categoryId);
+							
+							Boolean questionNavigation = Section.questionNavigation(sectionId);
+							if(!questionNavigation) {
+								QuestionNavigation.revokeAccess(saveResponseQuestionNavigationId, attemptId);
 							}
+							
+							
+							if(Question.setQuestionTimer(sectionId)) {
+								QuestionNavigation.updateSubmittedTime(saveResponseQuestionNavigationId, System.currentTimeMillis()/1000);
+							}
+
+							Integer nextQuestionToFetchId = saveResponseQuestionNavigationId + 1;
+							Integer nextQuestionId = QuestionNavigation.getQuestionId(nextQuestionToFetchId, attemptId);
+							JSONObject nextQuestion = Question.fetch(nextQuestionId);
+							Integer nextSectionId = Integer.parseInt((String) nextQuestion.get("sectionId"));
+							Integer nextSectionNavigationId = SectionNavigation.getNavigationId(nextSectionId, attemptId);
+							if(SectionNavigation.access(nextSectionNavigationId, attemptId)) { // section can be accessed
+								if(QuestionNavigation.validQuestionNavigationId(nextQuestionToFetchId, attemptId)) {
+									QuestionNavigation.grantAccess(nextQuestionToFetchId, attemptId);
+								}
+							}
+							success = "Question Navigation settings done";
 						}
-						success = "Question Navigation settings done";
+						else {
+							error = "Invalid response question id";
+						}
+						
 					}
 					else {
-						error = "Invalid response question id";
+						json.put("endExam", true);
 					}
 				} catch(Exception e) {
 					error = "Something went wrong while saving response";
