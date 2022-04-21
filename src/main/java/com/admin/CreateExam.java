@@ -49,7 +49,7 @@ public class CreateExam extends HttpServlet {
 				String visibility = request.getParameter("visibility"); // radio
 				String sectionNavigation = request.getParameter("sectionNavigation"); // radio
 				String startTimeString = request.getParameter("startTime");
-				String endTime = request.getParameter("endTime");
+				String endTimeString = request.getParameter("endTime");
 				String windowTime = request.getParameter("windowTime");
 				String numberOfAttempts = request.getParameter("numberOfAttempts");
 				String timerType = request.getParameter("timerType"); // radio
@@ -64,10 +64,11 @@ public class CreateExam extends HttpServlet {
 				Integer sectionTimer = 0;
 				Integer sectionNavigationValue = 1;
 				Integer visibilityValue = 0;
-				Long 	startTime = (long) 0;
+				Long startTime = (long) 0;
+				Long endTime = (long) 0; 
 				String 	createdOn = Long.toString(System.currentTimeMillis());
 				Boolean control = true;
-				if(title != null && description != null && startTimeString != null && windowTime != null && numberOfAttempts != null && instruction != null) {
+				if(title != null && description != null && startTimeString != null && endTimeString != null && windowTime != null && numberOfAttempts != null && instruction != null) {
 					if(title.length() == 0) {
 						errorLog.put("title", "Title required");
 						control = false;
@@ -141,6 +142,24 @@ public class CreateExam extends HttpServlet {
 						}
 					}
 					
+					if(endTimeString.equals("")) {
+						errorLog.put("endTime", "end time required");
+						control = false;
+					}
+					else if(!Validation.onlyDigits(endTimeString)) {
+						errorLog.put("endTime", "Invalid end time");
+						control = false;
+					}
+					else {
+						endTime = Long.parseLong(endTimeString)/1000;
+						int obj = Long.compare(startTime, endTime);
+						if(obj > 0) {
+							errorLog.put("endTime", "end time must be greater than start times");
+							control = false;
+						}
+					}
+					
+					
 					if(!Validation.onlyDigits(windowTime)) {
 						errorLog.put("windowTime", "Invalid window time");
 						control = false;
@@ -191,6 +210,15 @@ public class CreateExam extends HttpServlet {
 										control = false;
 										errorLog.put("timerDuration", "Invalid time duration");
 									}
+									else {
+										long timeDiffernce = Math.subtractExact(endTime, startTime);
+										long timeDurationLong = timeDurationValue;
+										int obj2 = Long.compare(timeDurationLong, timeDiffernce);
+										if(obj2 > 0) {
+											errorLog.put("endTime", "end time must be greater than total time");
+											control = false;
+										}
+									}
 								}
 							}
 							if(timerTypeValue == 2) // section Timer
@@ -215,7 +243,7 @@ public class CreateExam extends HttpServlet {
 						System.out.println("sectionNavigation: " + sectionNavigation);
 						Boolean result = false;
 						try {
-							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTimeString, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue, createdOn);
+							result =  CreateExam.add(adminId, title, description, instruction, difficultyLevel, visibilityValue, sectionNavigationValue, startTimeString, endTimeString, windowTimeValue, numberOfAttemptsValue, examTimer, sectionTimer, timeDurationValue, createdOn);
 						} catch(Exception e) {
 							e.printStackTrace();
 							error = "Something went wrong in database";
@@ -246,11 +274,11 @@ public class CreateExam extends HttpServlet {
 		
 	}
 	
-	public static boolean add(Integer adminId, String title, String description, String instructions, String difficultyLevel, Integer visibility, Integer sectionNavigation, String startTime, Integer windowTimeValue, Integer numberOfAttempts, Integer examTimer, Integer sectionTimer , Integer timeDurationValue, String createdOn) throws ClassNotFoundException, SQLException {
+	public static boolean add(Integer adminId, String title, String description, String instructions, String difficultyLevel, Integer visibility, Integer sectionNavigation, String startTime, String endTime, Integer windowTimeValue, Integer numberOfAttempts, Integer examTimer, Integer sectionTimer , Integer timeDurationValue, String createdOn) throws ClassNotFoundException, SQLException {
 
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "Insert into Exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+		String sql = "Insert into Exams values (NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		st.setString(2, title);
@@ -265,10 +293,11 @@ public class CreateExam extends HttpServlet {
 		st.setInt(11, sectionNavigation);
 		st.setInt(12, 0); // default not deleted
 		st.setString(13, startTime);
-		st.setInt(14, 0); // default inactive
-		st.setInt(15, windowTimeValue);
-		st.setInt(16, numberOfAttempts);
-		st.setString(17, createdOn);
+		st.setString(14, endTime);
+		st.setInt(15, 0); // default inactive
+		st.setInt(16, windowTimeValue);
+		st.setInt(17, numberOfAttempts);
+		st.setString(18, createdOn);
 		Integer count = st.executeUpdate();
 		st.close();
 		con.close();
