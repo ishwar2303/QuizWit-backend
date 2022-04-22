@@ -68,27 +68,29 @@ public class SaveResponse extends HttpServlet {
 
 							// save response of current question
 							SaveAnswer.save(request, attemptId, questionId, categoryId);
-							
-							Boolean questionNavigation = Section.questionNavigation(sectionId);
-							if(!questionNavigation) {
-								QuestionNavigation.revokeAccess(saveResponseQuestionNavigationId, attemptId);
-							}
-							
-							
-							if(Question.setQuestionTimer(sectionId)) {
-								QuestionNavigation.updateSubmittedTime(saveResponseQuestionNavigationId, System.currentTimeMillis()/1000);
-							}
+							if(request.getParameter("onlySave") == null) {
+								Boolean questionNavigation = Section.questionNavigation(sectionId);
+								if(!questionNavigation) {
+									QuestionNavigation.revokeAccess(saveResponseQuestionNavigationId, attemptId);
+								}
+								
+								
+								if(Question.setQuestionTimer(sectionId)) {
+									QuestionNavigation.updateSubmittedTime(saveResponseQuestionNavigationId, System.currentTimeMillis()/1000);
+								}
 
-							Integer nextQuestionToFetchId = saveResponseQuestionNavigationId + 1;
-							Integer nextQuestionId = QuestionNavigation.getQuestionId(nextQuestionToFetchId, attemptId);
-							JSONObject nextQuestion = Question.fetch(nextQuestionId);
-							Integer nextSectionId = Integer.parseInt((String) nextQuestion.get("sectionId"));
-							Integer nextSectionNavigationId = SectionNavigation.getNavigationId(nextSectionId, attemptId);
-							if(SectionNavigation.access(nextSectionNavigationId, attemptId)) { // section can be accessed
-								if(QuestionNavigation.validQuestionNavigationId(nextQuestionToFetchId, attemptId)) {
-									QuestionNavigation.grantAccess(nextQuestionToFetchId, attemptId);
+								Integer nextQuestionToFetchId = saveResponseQuestionNavigationId + 1;
+								Integer nextQuestionId = QuestionNavigation.getQuestionId(nextQuestionToFetchId, attemptId);
+								JSONObject nextQuestion = Question.fetch(nextQuestionId);
+								Integer nextSectionId = Integer.parseInt((String) nextQuestion.get("sectionId"));
+								Integer nextSectionNavigationId = SectionNavigation.getNavigationId(nextSectionId, attemptId);
+								if(SectionNavigation.access(nextSectionNavigationId, attemptId)) { // section can be accessed
+									if(QuestionNavigation.validQuestionNavigationId(nextQuestionToFetchId, attemptId)) {
+										QuestionNavigation.grantAccess(nextQuestionToFetchId, attemptId);
+									}
 								}
 							}
+							
 							success = "Question Navigation settings done";
 						}
 						else {

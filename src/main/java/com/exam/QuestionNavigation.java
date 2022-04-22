@@ -153,7 +153,7 @@ public class QuestionNavigation {
 		con.close();
 		return id;
 	}
-	
+
 	public static Integer firstQuestionOfSection(Integer attemptId, Integer sectionId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
@@ -434,6 +434,19 @@ public class QuestionNavigation {
 		con.close();
 		return questions;
 		
+	}
+	
+	public static Boolean toggleMarkAsReview(Integer navigationId, Integer status) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update QuestionNavigation set markedAsReview = ? where navigationId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, status);
+		st.setInt(2, navigationId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
 	}
 	
 }

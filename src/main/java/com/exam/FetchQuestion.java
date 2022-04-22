@@ -43,6 +43,7 @@ public class FetchQuestion {
 				question.put("attempted", QuestionNavigation.attempted(questionNavigationId, attemptId));
 				question.put("unattempted", QuestionNavigation.unAttempted(questionNavigationId, attemptId));
 				question.put("markedAsReview", QuestionNavigation.markedAsReview(questionNavigationId, attemptId));
+				question.put("sectionNavigationId", sectionNavigationId);
 				if((Question.setQuestionTimer(sectionId) && questionTimer > 0) || !Question.setQuestionTimer(sectionId)) {
 
 					question.put("setQuestionTimer", Question.setQuestionTimer(sectionId));
@@ -88,6 +89,11 @@ public class FetchQuestion {
 				System.out.println("fetch id: " + questionNavigationId);
 				if(lastNavigationId.toString().equals(questionNavigationId.toString())) { 
 					data.put("lastQuestion", true);
+				}
+
+				
+				if(firstNavigationIdInSection.toString().equals(questionNavigationId.toString())) {
+					data.put("firstQuestionOfSection", true);
 				}
 				
 				Integer lastNavigationIdInSection = QuestionNavigation.lastQuestionOfSection(attemptId, sectionId);

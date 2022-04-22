@@ -144,6 +144,19 @@ public class Attempt {
 		return time;
 	}
 	
+	public static Boolean endExam(Integer studentId, Integer examId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "Update Attempts set examSubmitted = 1 where studentId = ? AND examId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, studentId);
+		st.setInt(2, examId);
+		Integer count = st.executeUpdate();
+		st.close();
+		con.close();
+		return count > 0 ? true : false;
+	}
+	
 	public static Boolean endExam(Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
@@ -178,7 +191,7 @@ public class Attempt {
 	public static Integer count(Integer examId, Integer studentId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select COUNT(attemptId) from Attempts where examId = ? and studentId = ? ORDER BY attemptId DESC LIMIT 1";
+		String sql = "select COUNT(attemptId) from Attempts where examId = ? and studentId = ? and examSubmitted = 1 ORDER BY attemptId DESC LIMIT 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, examId);
 		st.setInt(2, studentId);

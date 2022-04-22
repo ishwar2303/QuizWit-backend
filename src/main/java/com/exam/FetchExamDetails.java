@@ -42,6 +42,17 @@ public class FetchExamDetails extends HttpServlet {
 			try {
 				exam = ViewExams.fetchExam(examId);
 				Integer timeToStart = (int) (Long.parseLong((String) exam.get("startTime"))/1000 - System.currentTimeMillis()/1000);
+				Long endTime = Long.parseLong((String) exam.get("endTime"))/1000;
+				Long currentTime = System.currentTimeMillis()/1000;
+				System.out.println(endTime);
+				System.out.println("BC");
+				System.out.println(currentTime);
+				if(Long.compare(endTime, currentTime) < 0) {
+					exam.put("endExam", true);
+				}
+				else {
+					exam.put("endExam", false);
+				}
 				json.put("exam", exam);
 				sections = ViewSections.fetchAllSections(examId);
 				for(int i=0; i<sections.size(); i++) {
@@ -63,6 +74,32 @@ public class FetchExamDetails extends HttpServlet {
 					JSONObject attempt = Attempt.details(attemptId);
 					Integer examSubmitted = Integer.parseInt((String) attempt.get("examSubmitted"));
 					exam.put("examSubmitted", examSubmitted == 1 ? true : false);
+				}
+				
+
+				Integer numberOfAttempts = Integer.parseInt((String) exam.get("numberOfAttempts")); // number of attempts available
+				Integer givenAttempts = Attempt.count(examId, studentId); // number of attempts given // submitted exam
+				Integer yourAttempt = 0;
+				if(givenAttempts < numberOfAttempts) {
+					Integer lastAttemptId = Attempt.getAttemptId(examId, studentId); // exam going on
+					if(lastAttemptId == 0) { // all submitted attempts
+						if(givenAttempts + 1 <= numberOfAttempts) {
+							exam.put("giveAttempt", true);
+							exam.put("yourAttempt", givenAttempts + 1);
+						}
+						else {
+							exam.put("giveAttempt", false);
+							exam.put("yourAttempt", "No more attempts available");
+						}
+					}
+					else {
+						exam.put("giveAttempt", true);
+						exam.put("yourAttempt", givenAttempts + 1);
+					}
+				}
+				else {
+					exam.put("giveAttempt", false);
+					exam.put("yourAttempt", "No more attempts available");
 				}
 				success = "Exam Details fetched successfully";
 			} catch(Exception e) {
