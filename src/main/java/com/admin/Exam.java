@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import org.json.simple.JSONObject;
 
 import com.database.AdminDatabaseConnectivity;
+import com.database.StudentDatabaseConnectivity;
 
 public class Exam {
 	public static boolean setEntireExamTimer(Integer examId) throws ClassNotFoundException, SQLException {
@@ -189,6 +190,50 @@ public class Exam {
 	}
 	
 
+	public static int runningExam(Integer currentTime, Integer adminId) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) AND endTime > ? AND startTime < ? AND isActive = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		st.setInt(2, currentTime);
+		st.setInt(3, currentTime);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
+	
+	public static int scheduledExam(Integer currentTime, Integer adminId) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) AND endTime > ? AND startTime > ? AND isActive = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		st.setInt(2, currentTime);
+		st.setInt(3, currentTime);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
+	
 	public static boolean inActiveExam(Integer examId) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
