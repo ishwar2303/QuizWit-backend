@@ -41,11 +41,6 @@ public class DashBoardCardData extends HttpServlet {
 			Integer currentTime = (int) (System.currentTimeMillis()/1000);
 			noOfActiveExams = Exam.runningExam(currentTime, adminId);
 			scheduledExam = Exam.scheduledExam(currentTime, adminId);
-
-			System.out.println("noOfUsers :" + noOfUsers);
-			System.out.println("totalAttempts :" + totalAttempts);
-			System.out.println("noOfActive :" + noOfActiveExams);
-			System.out.println("scheduledExam :" + scheduledExam);
 			
 			json.put("noOfUsers", noOfUsers);
 			json.put("noOfActiveExams", noOfActiveExams);

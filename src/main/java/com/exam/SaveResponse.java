@@ -68,7 +68,7 @@ public class SaveResponse extends HttpServlet {
 
 							// save response of current question
 							SaveAnswer.save(request, attemptId, questionId, categoryId);
-							if(request.getParameter("onlySave") == null) {
+							if(request.getParameter("onlySave") == null && request.getParameter("clear") == null) {
 								Boolean questionNavigation = Section.questionNavigation(sectionId);
 								if(!questionNavigation) {
 									QuestionNavigation.revokeAccess(saveResponseQuestionNavigationId, attemptId);
