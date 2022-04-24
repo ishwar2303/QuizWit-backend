@@ -51,6 +51,7 @@ public class DashBoardCardData extends HttpServlet {
 			json.put("noOfActiveExams", noOfActiveExams);
 			json.put("scheduledExam", scheduledExam);
 			json.put("totalAttempts", totalAttempts);
+			success = "Successfully fetched";
 			
 		} catch (Exception e) {
 			e.printStackTrace();
