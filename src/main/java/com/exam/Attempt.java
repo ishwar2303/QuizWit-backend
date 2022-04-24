@@ -207,4 +207,22 @@ public class Attempt {
 		return count;
 	}
 	
+	public static Integer count(Integer adminId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(attemptId) from attempts where examId IN (select examId from exams where administratorId = ?)";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+	}
+	
 }
