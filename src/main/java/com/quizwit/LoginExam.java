@@ -15,6 +15,7 @@ import org.json.simple.JSONObject;
 import com.admin.Admin;
 import com.admin.Exam;
 import com.admin.ManagementUser;
+import com.admin.StudentGroup;
 import com.config.Headers;
 import com.config.Origin;
 import com.student.Student;
@@ -46,7 +47,7 @@ public class LoginExam extends HttpServlet {
 		JSONObject errorLog = new JSONObject();
 
 		Integer examId = 0;
-		
+		Boolean examAccess = true;
 
 		if(session.getAttribute("AdminLoggedIn") != null && (boolean) session.getAttribute("AdminLoggedIn")) {
 			session.invalidate();
@@ -91,8 +92,11 @@ public class LoginExam extends HttpServlet {
 					try {
 						Boolean examVisibility = Exam.visibilityPrivate(examId);
 						if(examVisibility) { // check student in student group of exam
-							control = false;
-				 			errorLog.put("examId", "Private Exam Check in student group");
+							if(!StudentGroup.exist(examId, email)) {
+								control = false;
+					 			errorLog.put("examId", "Exam is private, you are not authorized contact your administrator");
+					 			examAccess = false;
+							}
 						} 
 					} catch(Exception e) {
 						e.printStackTrace();
@@ -144,7 +148,9 @@ public class LoginExam extends HttpServlet {
 					}
 				}
 				else {
-					error = "Please fill required fields appropriately";
+					if(examAccess)
+						error = "Please fill required fields appropriately";
+					else error = "Access not granted";
 				}
 			}
 			else {
