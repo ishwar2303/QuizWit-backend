@@ -225,4 +225,43 @@ public class Attempt {
 		return count;
 	}
 	
+	public static Integer countAttemptsOnExam(Integer studentId, Integer examId) throws SQLException, ClassNotFoundException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(attemptId) from Attempts where examId = ? AND studentId = ? AND examSubmitted = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, examId);
+		st.setInt(2, studentId);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+	}
+
+	
+	public static Boolean validAttemptOfStudent(Integer attemptId, Integer studentId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select COUNT(attemptId) from Attempts where attemptId = ? AND studentId = ? AND examSubmitted = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, studentId);
+		ResultSet rs = st.executeQuery();
+		Integer val = 0;
+		if(rs.next()) {
+			val = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return val == 1 ? true : false;
+	}
+	
+	
 }

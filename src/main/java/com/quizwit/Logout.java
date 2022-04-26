@@ -26,12 +26,13 @@ public class Logout extends HttpServlet {
 		String error = "";
 		
 		if(user != null) {
-			if(user != "" && user.matches("[12]")) {
+			if(user != "" && user.matches("[123]")) {
 				if(user.equals("1")) // Admin
 					Headers.setRequiredHeaders(response, Origin.getAdmin()); // Admin
 				else if(user.equals("2")) 
 					Headers.setRequiredHeaders(response, Origin.getExam()); // Exam
-				
+				else if(user.equals("3"))
+					Headers.setRequiredHeaders(response, Origin.getStudent()); // Student
 				success = "Logout successfully";
 				session.invalidate();
 			}

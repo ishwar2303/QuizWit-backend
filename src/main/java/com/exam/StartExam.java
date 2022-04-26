@@ -52,6 +52,7 @@ public class StartExam extends HttpServlet {
 			// get last attemptId from the database of the student
 			try {
 				Integer attemptId = Attempt.getAttemptId(examId, studentId); 
+				System.out.println("ATTEMPT ID : " + attemptId);
 				JSONObject exam = ViewExams.fetchExam(examId);
 				json.put("examTitle", exam.get("title"));
 				Long startTime = Long.parseLong((String) exam.get("startTime"))/1000;
@@ -150,6 +151,7 @@ public class StartExam extends HttpServlet {
 							}
 						}
 						else if(!Attempt.checkIfExamAlreadySubmitted(attemptId)) { // check last attempt of the exam
+							session.setAttribute("attemptId", attemptId);
 							// attempt already started
 							Long entireExamEndTime = Attempt.duration(attemptId);
 							Integer entireExamAvailableTime = (int) (entireExamEndTime - System.currentTimeMillis()/1000);

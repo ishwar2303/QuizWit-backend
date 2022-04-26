@@ -5,6 +5,7 @@ public class Origin {
 	private static String Admin = "http://localhost:3001";
 	private static String Exam = "http://localhost:3002";
 	private static String Student = "http://localhost:3003";
+	
 	public static String getQuizWit() {
 		return QuizWit;
 	}

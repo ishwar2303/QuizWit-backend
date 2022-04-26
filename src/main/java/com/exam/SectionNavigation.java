@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 
@@ -191,5 +192,21 @@ public class SectionNavigation {
 		return json;
 	}
 
+	public static ArrayList<Integer> getSectionIds(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select sectionId from SectionNavigation sn where attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		ArrayList<Integer> sections = new ArrayList<Integer>();
+		while(rs.next()) {
+			sections.add(rs.getInt(1));
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return sections;
+	}
 	
 }

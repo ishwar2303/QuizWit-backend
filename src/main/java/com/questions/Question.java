@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import org.json.simple.JSONObject;
 
 import com.database.AdminDatabaseConnectivity;
+import com.database.StudentDatabaseConnectivity;
 import com.mysql.cj.jdbc.result.ResultSetMetaData;
 
 public class Question {
@@ -235,6 +236,24 @@ public class Question {
 		st.close();
 		con.close();
 		return count > 0 ? true : false;
+	}
+	
+	public static ArrayList<Integer> getQuestionsIds(Integer sectionId) throws ClassNotFoundException, SQLException {
+
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select questionId from Questions WHERE sectionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, sectionId);
+		ResultSet rs = st.executeQuery();
+		ArrayList<Integer> questions = new ArrayList<Integer>();
+		while(rs.next()) {
+			questions.add(rs.getInt(1));
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return questions;
 	}
 	
 }
