@@ -189,6 +189,47 @@ public class Exam {
 		return title;
 	}
 	
+	
+	public static int totalExam(Integer adminId) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) ";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
+	
+	public static int endedExam(Integer adminId, Integer currentTime) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) AND endTime < ? ";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		st.setInt(2, currentTime);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
 
 	public static int runningExam(Integer currentTime, Integer adminId) throws ClassNotFoundException, SQLException
 	{

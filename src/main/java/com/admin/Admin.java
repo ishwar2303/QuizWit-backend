@@ -27,6 +27,23 @@ public class Admin {
 		return records > 0 ? true : false;
 	}
 	
+	public static Integer active(Integer adminId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		String sql = "select count(administratorid) from administrators where administratorId IN (select administratorId from administrators where administratorId = ?) AND isActive = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer count = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+	}
+	
+	
+	
 	public boolean add(String fullName, String email, String contact, String password) throws ClassNotFoundException, SQLException {
 		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
 		Connection con = adc.connection();
