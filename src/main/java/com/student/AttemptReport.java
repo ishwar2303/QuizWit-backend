@@ -14,6 +14,7 @@ import javax.servlet.http.HttpSession;
 import org.json.simple.JSONObject;
 
 import com.admin.Section;
+import com.admin.ViewExams;
 import com.admin.ViewSections;
 import com.config.Headers;
 import com.config.Origin;
@@ -91,10 +92,10 @@ public class AttemptReport extends HttpServlet {
 		Integer correctQuestions = 0;
 		Integer totalQuestions = 0;
 		try {
-
+			JSONObject exam = ViewExams.fetchExam(Attempt.getExamId(attemptId));
+			result.put("examTitle", exam.get("title"));
 			ArrayList<Integer> sectionsIds = SectionNavigation.getSectionIds(attemptId);
 			ArrayList<JSONObject> sections = new ArrayList<JSONObject>();
-			ArrayList<JSONObject> questions = new ArrayList<JSONObject>();
 			Double totalExamScore = 0.0;
 			Double examScore = 0.0;
 			for(int i=0; i<sectionsIds.size(); i++) {
@@ -106,6 +107,7 @@ public class AttemptReport extends HttpServlet {
 				Integer totalSectionQuestions = 0;
 				Integer attemptedSectionQuestions = 0;
 				Integer correctSectionQuestions = 0;
+				ArrayList<JSONObject> questions = new ArrayList<JSONObject>();
 				for(int j=0; j<questionsIds.size(); j++) {
 					totalQuestions += 1;
 					totalSectionQuestions += 1;

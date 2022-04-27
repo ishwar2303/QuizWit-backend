@@ -263,5 +263,21 @@ public class Attempt {
 		return val == 1 ? true : false;
 	}
 	
+	public static Integer getExamId(Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select examId from Attempts where attemptId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		ResultSet rs = st.executeQuery();
+		Integer id = 0;
+		if(rs.next()) {
+			id = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return id;
+	}
 	
 }
