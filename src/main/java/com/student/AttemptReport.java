@@ -13,13 +13,16 @@ import javax.servlet.http.HttpSession;
 
 import org.json.simple.JSONObject;
 
+import com.admin.Section;
 import com.admin.ViewSections;
 import com.config.Headers;
 import com.config.Origin;
 import com.evaluation.EvaluateMultipleChoiceAnswer;
 import com.evaluation.EvaluateTrueFalseAnswer;
 import com.exam.Attempt;
+import com.exam.QuestionNavigation;
 import com.exam.SectionNavigation;
+import com.questions.MultipleChoiceQuestionOption;
 import com.questions.Question;
 import com.util.Validation;
 
@@ -32,13 +35,9 @@ public class AttemptReport extends HttpServlet {
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-
-
 		HttpSession session = request.getSession();
 
 		Headers.setRequiredHeaders(response, Origin.getStudent());
-		String email = request.getParameter("email");
-		String password = request.getParameter("password");
 		JSONObject json = new JSONObject();
 		String success = "";
 		String error = "";
@@ -104,8 +103,12 @@ public class AttemptReport extends HttpServlet {
 				Double totalSectionScore = 0.0;
 				Double sectionScore = 0.0;
 				ArrayList<Integer> questionsIds = Question.getQuestionsIds(sectionId);
+				Integer totalSectionQuestions = 0;
+				Integer attemptedSectionQuestions = 0;
+				Integer correctSectionQuestions = 0;
 				for(int j=0; j<questionsIds.size(); j++) {
 					totalQuestions += 1;
+					totalSectionQuestions += 1;
 					Integer questionId = questionsIds.get(j);
 					JSONObject question = Question.fetch(questionId);
 					Integer categoryId = Integer.parseInt((String) question.get("categoryId"));
@@ -114,11 +117,20 @@ public class AttemptReport extends HttpServlet {
 					Double negative = Double.parseDouble((String) question.get("negative"));
 					JSONObject status = new JSONObject();
 					
+					if(Section.setQuestionTimer(sectionId)) {
+						Long leftTime = QuestionNavigation.leftTimeDuration(questionId, attemptId);
+						Long timeDuration = Long.parseLong((String) question.get("timeDuration"));
+						Long timeSpent = (long) Long.compare(timeDuration, leftTime);
+						question.put("timeSpent", timeSpent);
+					}
+					
 					if(categoryId == 1 || categoryId == 2) { // MCQ
+						question.put("mcqOptions", MultipleChoiceQuestionOption.fetch(questionId));
 						System.out.print("MCQ => ");
 						ArrayList<Integer> selectedOptions = EvaluateMultipleChoiceAnswer.selectedOptions(questionId, attemptId);
 						ArrayList<Integer> correctOptions = EvaluateMultipleChoiceAnswer.correctOptions(questionId);
-
+						question.put("correctOptions", correctOptions);
+						question.put("selectedOptions", selectedOptions);
 						System.out.print("Selected Options: ");
 						for(Integer v : selectedOptions) {
 							System.out.print(v + ", ");
@@ -136,6 +148,7 @@ public class AttemptReport extends HttpServlet {
 							 status.put("correct", 0);
 							 sectionScore -= negative;
 							 attemptedQuestions += 1;
+							 attemptedSectionQuestions += 1;
 							 System.out.println(" -----> Wrong");
 						}
 						else if(selectedOptions.size() == correctOptions.size()){
@@ -152,6 +165,8 @@ public class AttemptReport extends HttpServlet {
 								 correctQuestions += 1;
 								 sectionScore += score;
 								 attemptedQuestions += 1;
+								 attemptedSectionQuestions += 1;
+								 correctSectionQuestions += 1;
 								 System.out.println(" -----> Correct");
 							}
 							else {
@@ -159,6 +174,7 @@ public class AttemptReport extends HttpServlet {
 								 status.put("correct", 0);
 								 sectionScore -= negative;
 								 attemptedQuestions += 1;
+								 attemptedSectionQuestions += 1;
 								 System.out.println(" -----> Wrong");
 							}
 						}
@@ -172,20 +188,28 @@ public class AttemptReport extends HttpServlet {
 						 else {
 							 status.put("attempted", 1);
 							 attemptedQuestions += 1;
+							 attemptedSectionQuestions += 1;
 						 }
 						 if(selectedTrueFalseAnswer.equals(EvaluateTrueFalseAnswer.correctAnswer(questionId))) {
 							 status.put("correct", 1);
 							 correctQuestions += 1;
 							 sectionScore += score;
+							 correctSectionQuestions += 1;
 						 }
 						 else {
 							 status.put("correct", 0);
 							 sectionScore -= negative;
 						 }
+						 question.put("selectedAnswer", selectedTrueFalseAnswer);
+						 question.put("correctAnswer", EvaluateTrueFalseAnswer.correctAnswer(questionId));
 					}
 					question.put("status", status);
 					questions.add(question);
 				}
+				section.put("totalSectionQuestions", totalSectionQuestions);
+				section.put("attemptedSectionQuestions", attemptedSectionQuestions);
+				section.put("correctSectionQuestions", correctSectionQuestions);
+				section.put("incorrectSectionQuestions", attemptedSectionQuestions - correctSectionQuestions);
 				totalExamScore += totalSectionScore;
 				examScore += sectionScore;
 				section.put("scored", sectionScore);

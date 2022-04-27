@@ -37,8 +37,6 @@ public class ViewAttempts extends HttpServlet {
 		HttpSession session = request.getSession();
 
 		Headers.setRequiredHeaders(response, Origin.getStudent());
-		String email = request.getParameter("email");
-		String password = request.getParameter("password");
 		JSONObject json = new JSONObject();
 		String success = "";
 		String error = "";

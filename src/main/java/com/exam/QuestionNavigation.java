@@ -396,6 +396,26 @@ public class QuestionNavigation {
 		con.close();
 		return id != 0 ? true : false;
 	}
+	
+
+	public static Long leftTimeDuration(Integer questionId, Integer attemptId) throws ClassNotFoundException, SQLException {
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select (endTime - submittedTime) as leftTime from QuestionNavigation WHERE attemptId = ? and questionId = ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, attemptId);
+		st.setInt(2, questionId);
+		ResultSet rs = st.executeQuery();
+		Long time = (long) 0;
+		if(rs.next())
+			time = rs.getLong(1);
+		rs.close();
+		st.close();
+		con.close();
+		return time;
+	}
+	
+	
 	public static Boolean markedAsReview(Integer navigationId, Integer attemptId) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
