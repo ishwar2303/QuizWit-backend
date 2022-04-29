@@ -216,11 +216,52 @@ public class Exam {
 	{
 		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
 		Connection con = sdc.connection();
-		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) AND endTime > ? AND startTime > ? AND isActive = 1";
+		String sql = "select count(e.examId) from exams as e where e.examId IN (select examId from exams where administratorId = ?) AND e.endTime > ? AND e.startTime > ? AND e.isActive = 1";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setInt(1, adminId);
 		st.setInt(2, currentTime);
 		st.setInt(3, currentTime);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
+	
+	public static int totalExams(Integer adminId) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?)";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		ResultSet rs = st.executeQuery();
+		Integer count = 0;
+
+		if(rs.next()) {
+			count = rs.getInt(1);
+		}
+		rs.close();
+		st.close();
+		con.close();
+		return count;
+		
+	}
+	
+	public static int endedExams(Integer adminId, Integer currentTime) throws ClassNotFoundException, SQLException
+	{
+		StudentDatabaseConnectivity sdc = new StudentDatabaseConnectivity();
+		Connection con = sdc.connection();
+		String sql = "select count(examId) from exams where examId IN (select examId from exams where administratorId = ?) AND endTime < ?";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		st.setInt(2, currentTime);
 		ResultSet rs = st.executeQuery();
 		Integer count = 0;
 
@@ -245,5 +286,7 @@ public class Exam {
 		con.close();
 		return count > 0 ? true : false;
 	}
+	
+	
 	
 }

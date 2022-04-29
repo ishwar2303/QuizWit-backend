@@ -352,4 +352,22 @@ public class ManagementUser extends HttpServlet {
 		return users;
 	}
 	
+	public static Integer countActiveUsers(Integer adminId) throws ClassNotFoundException, SQLException {
+		AdminDatabaseConnectivity adc = new AdminDatabaseConnectivity();
+		Connection con = adc.connection();
+		
+		String sql = "select COUNT(userId) from `Users` where administratorId = ? AND isActive = 1";
+		PreparedStatement st = con.prepareStatement(sql);
+		st.setInt(1, adminId);
+		ResultSet rs = st.executeQuery();
+		rs.next();
+		Integer users = rs.getInt(1);
+		rs.close();
+		st.close();
+		con.close();
+		return users;
+	}
+	
+	
+	
 }

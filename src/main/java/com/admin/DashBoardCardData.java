@@ -31,14 +31,20 @@ public class DashBoardCardData extends HttpServlet {
 		JSONObject json = new JSONObject();
 		String success = "", error = "";
 		
+		Integer totalExams = 0;
+		Integer endedExams = 0;
 		Integer noOfUsers = 0;
 		Integer totalAttempts = 0;
 		Integer noOfActiveExams = 0;
 		Integer scheduledExam = 0;
+		Integer noOfActiveUsers = 0;
 		try {
+			totalExams = Exam.totalExams(adminId);
 			noOfUsers = ManagementUser.count(adminId);
 			totalAttempts = Attempt.count(adminId);
 			Integer currentTime = (int) (System.currentTimeMillis()/1000);
+			noOfActiveUsers = ManagementUser.countActiveUsers(adminId);
+			endedExams = Exam.endedExams(adminId, currentTime);
 			noOfActiveExams = Exam.runningExam(currentTime, adminId);
 			scheduledExam = Exam.scheduledExam(currentTime, adminId);
 			
@@ -46,6 +52,10 @@ public class DashBoardCardData extends HttpServlet {
 			json.put("noOfActiveExams", noOfActiveExams);
 			json.put("scheduledExam", scheduledExam);
 			json.put("totalAttempts", totalAttempts);
+			json.put("noOfActiveExams", noOfActiveExams);
+			json.put("noOfActiveUsers", noOfActiveUsers);
+			json.put("endedExams", endedExams);
+			json.put("totalExams", totalExams);
 			success = "Successfully fetched";
 			
 		} catch (Exception e) {
