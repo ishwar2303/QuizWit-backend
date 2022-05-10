@@ -47,7 +47,7 @@ public class StudentDashBoardCard extends HttpServlet {
 				
 				String email = Student.getEmail(studentId);
 				
-				Integer currentTime = (int) (System.currentTimeMillis()/1000);
+				Long currentTime =  (System.currentTimeMillis());
 				
 				totalAttempts = Student.attempts(studentId);
 				

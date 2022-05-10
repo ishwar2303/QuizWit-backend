@@ -43,13 +43,13 @@ public class Student {
 		return attempts;
 	}
 	
-	public static Integer endedExams(String email, Integer currentTime) throws ClassNotFoundException, SQLException {
+	public static Integer endedExams(String email, Long currentTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "SELECT COUNT(e.examId) from exams as e INNER JOIN studentGroupOfExam as sge on e.examId = sge.examId where email = ? AND endTime > ?";
+		String sql = "SELECT COUNT(e.examId) from exams as e INNER JOIN studentGroupOfExam as sge on e.examId = sge.examId where email = ? AND endTime < ?";
 		PreparedStatement st = con.prepareStatement(sql);
 		st.setString(1, email);
-		st.setInt(2, currentTime);
+		st.setLong(2, currentTime);
 		ResultSet rs = st.executeQuery();
 		rs.next();
 		Integer endedExams = rs.getInt(1);
@@ -75,13 +75,13 @@ public class Student {
 	}
 	
 	
-	public static Integer scheduledExams(String email, Integer currentTime) throws ClassNotFoundException, SQLException {
+	public static Integer scheduledExams(String email, Long currentTime) throws ClassNotFoundException, SQLException {
 		StudentDatabaseConnectivity adc = new StudentDatabaseConnectivity();
 		Connection con = adc.connection();
-		String sql = "SELECT COUNT(e.examId) from exams as e INNER JOIN studentGroupOfExam as sge on e.examId = sge.examId where email = ? AND endTime < ?";
+		String sql = "select count(e.examId) from Exams e inner join StudentGroupOfExam sge on e.examId = sge.examId inner join Students s on s.email = sge.email where endTime > ? and sge.email = ? and e.isActive = 1";
 		PreparedStatement st = con.prepareStatement(sql);
-		st.setString(1, email);
-		st.setInt(2, currentTime);
+		st.setLong(1, currentTime);
+		st.setString(2, email);
 		ResultSet rs = st.executeQuery();
 		rs.next();
 		Integer scheduledExams = rs.getInt(1);

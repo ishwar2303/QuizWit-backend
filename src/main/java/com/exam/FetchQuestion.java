@@ -44,7 +44,7 @@ public class FetchQuestion {
 				question.put("unattempted", QuestionNavigation.unAttempted(questionNavigationId, attemptId));
 				question.put("markedAsReview", QuestionNavigation.markedAsReview(questionNavigationId, attemptId));
 				question.put("sectionNavigationId", sectionNavigationId);
-				if((Question.setQuestionTimer(sectionId) && questionTimer > 0) || !Question.setQuestionTimer(sectionId)) {
+				if((Question.setQuestionTimer(sectionId)) || !Question.setQuestionTimer(sectionId)) {
 
 					question.put("setQuestionTimer", Question.setQuestionTimer(sectionId));
 					
